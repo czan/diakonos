@@ -1,0 +1,53 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <title>My elm page!</title>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <link type="text/css" rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <script src="./main.js"></script>
+        <script>
+         var app = Elm.Main.fullscreen();
+
+         var scrollIntoViewIfNeeded = function(node, centerIfNeeded) {
+             centerIfNeeded = arguments.length === 0 ? true : !!centerIfNeeded;
+
+             var parent = node.parentNode,
+                 parentComputedStyle = window.getComputedStyle(parent, null),
+                 parentBorderTopWidth = parseInt(parentComputedStyle.getPropertyValue('border-top-width')),
+                 parentBorderLeftWidth = parseInt(parentComputedStyle.getPropertyValue('border-left-width')),
+                 overTop = node.offsetTop - parent.offsetTop < parent.scrollTop,
+                 overBottom = (node.offsetTop - parent.offsetTop + node.clientHeight - parentBorderTopWidth) > (parent.scrollTop + parent.clientHeight),
+                 overLeft = node.offsetLeft - parent.offsetLeft < parent.scrollLeft,
+                 overRight = (node.offsetLeft - parent.offsetLeft + node.clientWidth - parentBorderLeftWidth) > (parent.scrollLeft + parent.clientWidth),
+                 alignWithTop = overTop && !overBottom;
+
+             if ((overTop || overBottom) && centerIfNeeded) {
+                 parent.scrollTop = node.offsetTop - parent.offsetTop - parent.clientHeight / 2 - parentBorderTopWidth + node.clientHeight / 2;
+             }
+
+             if ((overLeft || overRight) && centerIfNeeded) {
+                 parent.scrollLeft = node.offsetLeft - parent.offsetLeft - parent.clientWidth / 2 - parentBorderLeftWidth + node.clientWidth / 2;
+             }
+
+             if ((overTop || overBottom || overLeft || overRight) && !centerIfNeeded) {
+                 node.scrollIntoView(alignWithTop);
+             }
+         };
+         
+         app.ports.scrollToVisible.subscribe(function(id) {
+             setTimeout(function() {
+                 try {
+                     var element = document.getElementById(id);
+                     if (element) {
+                         scrollIntoViewIfNeeded(element);
+                     }
+                 } catch (e) {
+                     console.error(e);
+                 }
+             });
+         });
+        </script>
+    </body>
+</html>

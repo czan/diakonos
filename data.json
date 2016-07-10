@@ -1,0 +1,1120 @@
+{
+    "people": {
+        "88eee80c6add569e632c": {
+            "role": "asgl",
+            "name": "Alex",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16}
+            ]
+        },
+        "7ce26287c1967f0e94a3": {
+            "role": "member",
+            "name": "Renee Tan",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "abd162e00f5e03a47975": {
+            "role": "asgl",
+            "name": "Sam Charles",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10}
+            ]
+        },
+        "70011f507a0d7c64e85a": {
+            "role": "member",
+            "name": "Florence Cheng",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 15},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "1069423814d86807df20": {
+            "role": "asgl",
+            "name": "Kristin Economou",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "449e98be325faa45927d": {
+            "role": "member",
+            "name": "Ingrid Lam",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 15},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "ebd30fcf688fb242b11c": {
+            "role": "member",
+            "name": "Woon Huey Nin",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "6dcf0b1cc16c653c74a0": {
+            "role": "member",
+            "name": "Pauline Beard",
+            "gender": "female",
+            "free": [
+                {"day": "tuesday", "time": 10},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "d8d816093e0a7fc81097": {
+            "role": "member",
+            "name": "Caroline Austin",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "98fc55c279c6fb72da1e": {
+            "role": "member",
+            "name": "Cynthia Liang",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 12}
+            ]
+        },
+        "22c7091ba38521a4ebb0": {
+            "role": "member",
+            "name": "Ben Cullen",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12}
+            ]
+        },
+        "3c0a4fed2e7b2fe21068": {
+            "role": "asgl",
+            "name": "Sam P",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "cc2f28bc0d6cf7a635ef": {
+            "role": "member",
+            "name": "Aksa George",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "8187f8b20d98b39906e5": {
+            "role": "member",
+            "name": "Yiwen Sun",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "c111fabbad9589412d0d": {
+            "role": "asgl",
+            "name": "Andy",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 11},
+                {"day": "wednesday", "time": 8},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10}
+            ]
+        },
+        "1d414530ff6008971694": {
+            "role": "member",
+            "name": "Megan Story",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 15},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "d64c56dfe26b28925371": {
+            "role": "asgl",
+            "name": "Nethanjah",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 12},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 12},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 12},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "5bb399daa84d4bf64ef8": {
+            "role": "member",
+            "name": "Callum Betteridge",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "wednesday", "time": 15},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 14},
+                {"day": "friday", "time": 11}
+            ]
+        },
+        "c3c6915e28c1fdb9b41c": {
+            "role": "asgl",
+            "name": "Emma Caughey",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "thursday", "time": 9},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "5939d861286efc01ab29": {
+            "role": "member",
+            "name": "William Janssen",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 14}
+            ]
+        },
+        "b84c18b88292d63f8b6d": {
+            "role": "asgl",
+            "name": "Kristen",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 12},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "53e46d382208deb357fc": {
+            "role": "member",
+            "name": "Emily Huggins",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "1269069d1036accc9e1b": {
+            "role": "member",
+            "name": "Alex Ecob",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "wednesday", "time": 9},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 9}
+            ]
+        },
+        "9c584ea05873f90e453d": {
+            "role": "member",
+            "name": "Raphael Gorrez",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "1d7c8bb178c9ccc4e83a": {
+            "role": "member",
+            "name": "Valerie",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "f4a96ebc68ca770b684a": {
+            "role": "member",
+            "name": "Antoinette Clayton",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "wednesday", "time": 14},
+                {"day": "wednesday", "time": 15}
+            ]
+        },
+        "1e0c98b5f6c2bfa35dd2": {
+            "role": "member",
+            "name": "Genevieve Dobson",
+            "gender": "female",
+            "free": [
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "ba374dac56d8a0e240a4": {
+            "role": "member",
+            "name": "Ruth Chen",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "6141bc33a801846fdf70": {
+            "role": "member",
+            "name": "Nikhil Kumar",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 12},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 11}
+            ]
+        },
+        "94edc35cfa88b782587f": {
+            "role": "asgl",
+            "name": "Aaron",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "thursday", "time": 10}
+            ]
+        },
+        "0698a0305759758d6215": {
+            "role": "member",
+            "name": "Bronte Smith",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "25caf44c361a98eb4ed1": {
+            "role": "asgl",
+            "name": "Tristen",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 12},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15}
+            ]
+        },
+        "f79746a06b7448b18ece": {
+            "role": "member",
+            "name": "Kaylee Clark",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 13},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "65360ffb074f4619b020": {
+            "role": "member",
+            "name": "Alison Campbell",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "2f97357622481bc4bcfa": {
+            "role": "member",
+            "name": "Robyn Waters",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "tuesday", "time": 13}
+            ]
+        },
+        "aa3824c188a4e26649a4": {
+            "role": "member",
+            "name": "Pat Ngai",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "70a6a1c2a62adadaf7b7": {
+            "role": "member",
+            "name": "Lillian Buchholz",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "487c4f0e27166bf26155": {
+            "role": "member",
+            "name": "Jess Payne",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "tuesday", "time": 10},
+                {"day": "wednesday", "time": 12}
+            ]
+        },
+        "cda71710259aa12c2432": {
+            "role": "member",
+            "name": "Jaden Costa",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 15},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 13}
+            ]
+        },
+        "0d155845dd359649ef7d": {
+            "role": "asgl",
+            "name": "Declan Twigg",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 13},
+                {"day": "thursday", "time": 9},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "07e355a5b7ae812e5ad6": {
+            "role": "member",
+            "name": "Josiah Seto",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "03f7e156673cd53d9658": {
+            "role": "member",
+            "name": "Thomas Arblaster",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 15},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "8ac09632d6e7698e95fd": {
+            "role": "member",
+            "name": "Molly",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 8},
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "tuesday", "time": 8},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "wednesday", "time": 8},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 15},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 15}
+            ]
+        },
+        "08ea9ded7af18c9fc5c7": {
+            "role": "member",
+            "name": "Ian Bone",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 13},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "54adedca81b281a757e9": {
+            "role": "asgl",
+            "name": "George Joun",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 13},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 13},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "479aeb58d0ca9ee3b130": {
+            "role": "member",
+            "name": "Hannah Cowell",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "wednesday", "time": 12},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "2f8ed3794edb5437832e": {
+            "role": "member",
+            "name": "Lauren Wylie",
+            "gender": "female",
+            "free": [
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 13}
+            ]
+        },
+        "f96935b5cffdf9a1d830": {
+            "role": "member",
+            "name": "David Mun",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 11},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12}
+            ]
+        },
+        "12dbc4033c868ad104b0": {
+            "role": "member",
+            "name": "Otto Zhang",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "d88420e68a9c57c24f5a": {
+            "role": "asgl",
+            "name": "Alyssa",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 8},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 8},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 8},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 8},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 8},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "7cf239d7a78f1217843c": {
+            "role": "member",
+            "name": "Cameron Chew",
+            "gender": "male",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 13},
+                {"day": "tuesday", "time": 13},
+                {"day": "thursday", "time": 12},
+                {"day": "friday", "time": 12}
+            ]
+        },
+        "6155251f9fe41724e7a6": {
+            "role": "member",
+            "name": "Ellen Worley",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "tuesday", "time": 9},
+                {"day": "tuesday", "time": 10},
+                {"day": "tuesday", "time": 13},
+                {"day": "wednesday", "time": 15},
+                {"day": "wednesday", "time": 16},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 15},
+                {"day": "thursday", "time": 16},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14}
+            ]
+        },
+        "f9d7b97adb9106278800": {
+            "role": "asgl",
+            "name": "Lauren Chee",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 9},
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 14},
+                {"day": "tuesday", "time": 12},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 12},
+                {"day": "wednesday", "time": 13},
+                {"day": "wednesday", "time": 14},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 10},
+                {"day": "thursday", "time": 11},
+                {"day": "thursday", "time": 12},
+                {"day": "thursday", "time": 14},
+                {"day": "thursday", "time": 16}
+            ]
+        },
+        "07812dee543f3d8fab01": {
+            "role": "member",
+            "name": "Andrea Wan",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 9},
+                {"day": "wednesday", "time": 10},
+                {"day": "wednesday", "time": 11},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "8d5d0d9e671c361adab5": {
+            "role": "member",
+            "name": "Miriam Birt",
+            "gender": "female",
+            "free": [
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 10},
+                {"day": "friday", "time": 11},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        },
+        "d42d096b4dddaa2b7689": {
+            "role": "member",
+            "name": "Mirei Takashiba",
+            "gender": "female",
+            "free": [
+                {"day": "monday", "time": 10},
+                {"day": "monday", "time": 11},
+                {"day": "monday", "time": 12},
+                {"day": "monday", "time": 13},
+                {"day": "monday", "time": 14},
+                {"day": "monday", "time": 15},
+                {"day": "monday", "time": 16},
+                {"day": "tuesday", "time": 13},
+                {"day": "tuesday", "time": 14},
+                {"day": "tuesday", "time": 15},
+                {"day": "tuesday", "time": 16},
+                {"day": "wednesday", "time": 13},
+                {"day": "thursday", "time": 9},
+                {"day": "thursday", "time": 13},
+                {"day": "friday", "time": 9},
+                {"day": "friday", "time": 12},
+                {"day": "friday", "time": 13},
+                {"day": "friday", "time": 14},
+                {"day": "friday", "time": 15},
+                {"day": "friday", "time": 16}
+            ]
+        }
+    },
+    "groups": {
+        "test": {
+            "time": {"day": "monday", "time": 9},
+            "people": []
+        }
+    }
+}

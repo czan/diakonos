@@ -1,0 +1,84 @@
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: calc(100% - 5px);
+}
+
+#container {
+    width: 100%;
+    height: calc(100% - 22px);
+    max-width: 800px;
+    margin: 10px auto;
+    border: 1px solid #000;
+}
+
+.navigation {
+    height: 30px;
+    line-height: 30px;
+    border-bottom: 1px solid #000;
+}
+
+.navigation > div {
+    display: inline-block;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
+.navigation > div.selected {
+    background: #ff9;
+}
+
+.navigation > div:hover {
+    background: #ffd;
+}
+
+
+.person-label {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.person-label:hover {
+    background: #ffd;
+}
+
+.person-label.selected {
+    background: #ff9;
+}
+
+.person-label.selected:hover {
+    background: #ff6;
+}
+
+.person-page {
+    height: calc(100% - 31px);
+}
+
+.person-page .person-list {
+    width: 30%;
+    padding: 0;
+    display: inline-block;
+    vertical-align: top;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.person-page .person-list h1 {
+    font-size: 1.2em;
+    padding: 5px;
+    margin: 0;
+    text-align: center;
+}
+
+.person-page .form {
+    width: 70%;
+    padding: 20px 0;
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+}
+
+.person-page .form table {
+    margin: 0 auto;
+}
