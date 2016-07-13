@@ -1,9 +1,11 @@
-module Data.Person exposing (Person, Id, Dict, Role(..), Gender(..), roles, genders, jsonDecode)
+module Data.Person exposing (Person, Id, Dict, Role(..), Gender(..), roles, genders, decode, encode, drag, idDrag)
 
 import Data.Timeslot as Timeslot exposing (Timeslot)
 import Json.Decode as Json exposing ((:=))
+import Json.Encode as E
 import String
 import Dict
+import DragAndDrop
 
 type alias Id = String
 
@@ -27,6 +29,7 @@ type Gender = Male
 
 genders : List Gender
 genders = [Male, Female]
+
     
 decodeRole : Json.Decoder Role
 decodeRole =
@@ -45,10 +48,33 @@ decodeGender =
                    "female" -> Json.succeed Female
                    _ -> Json.fail "Invalid gender")
 
-jsonDecode : Json.Decoder Person
-jsonDecode =
+decode : Json.Decoder Person
+decode =
     Json.object4 Person
         ("name" := Json.string)
         ("role" := decodeRole)
         ("gender" := decodeGender)
-        ("free" := (Json.list Timeslot.jsonDecode))
+        ("free" := Json.list Timeslot.decode)
+
+encode : Person -> E.Value
+encode {name, role, gender, free} =
+    E.object
+        [ ("name", E.string name)
+        , ("role", E.string <| toString role)
+        , ("gender", E.string <| toString gender)
+        , ("free", E.list <| List.map Timeslot.encode free)
+        ]
+        
+drag : DragAndDrop.DragType Person
+drag =
+    { key = "Person"
+    , encode = encode
+    , decode = decode
+    }
+
+idDrag : DragAndDrop.DragType Id
+idDrag =
+    { key = "PersonId"
+    , encode = E.string
+    , decode = Json.string
+    }

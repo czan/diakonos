@@ -1112,8 +1112,12 @@
         }
     },
     "groups": {
-        "test": {
+        "abd162e00f5e03a479ff": {
             "time": {"day": "monday", "time": 9},
+            "people": []
+        },
+        "abd16fe00f5e03a479ff": {
+            "time": {"day": "monday", "time": 15},
             "people": []
         }
     }

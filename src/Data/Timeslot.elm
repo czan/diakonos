@@ -1,9 +1,9 @@
-module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, jsonDecode)
+module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, decode, encode)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import String
 import Json.Decode as Json exposing ((:=))
+import Json.Encode as E
 
 type Day = Monday
          | Tuesday
@@ -19,45 +19,50 @@ days = [Monday, Tuesday, Wednesday, Thursday, Friday]
 times : List Time
 times = [8 .. 16]
 
+all : List Timeslot
 all = List.concatMap (\a -> List.map (\b -> (a,b)) times) days
 
 daytitle : Day -> Html a
 daytitle day =
-    strong []
-        [text (case day of
-                   Monday -> "mo"
-                   Tuesday -> "tu"
-                   Wednesday -> "we"
-                   Thursday -> "th"
-                   Friday -> "fr")]
+    td []
+        [ strong []
+              [ text (case day of
+                          Monday -> "mo"
+                          Tuesday -> "tu"
+                          Wednesday -> "we"
+                          Thursday -> "th"
+                          Friday -> "fr")
+              ]
+        ]
              
 timetitle : Time -> Html a
 timetitle time =
-    strong []
-        [time
-        |> toString
-        |> String.padLeft 2 '0'
-        |> String.padRight 4 '0'
-        |> text]
+    td []
+        [ strong []
+              [time
+              |> toString
+              |> String.padLeft 2 '0'
+              |> String.padRight 4 '0'
+              |> text
+              ]
+        ]
 
-table : (Timeslot -> Html a) -> Html a
-table cellFn =
+table : List (Attribute a) -> (Timeslot -> Html a) -> Html a
+table attrs cellFn =
     let
-        cell x = td [] [x]
-                 
         titlerow =
             tr []
-                (td [] [] :: List.map (cell << daytitle) days)
+                (td [] [] :: List.map daytitle days)
 
         row time =
             let
+                title = timetitle
                 process day = cellFn (day, time)
             in
-                tr [] (timetitle time :: List.map (cell << process) days)
+                tr [] (title time :: List.map process days)
                 
     in
-        Html.table [class "timetable"]
-            (titlerow :: List.map row times)
+        Html.table attrs (titlerow :: List.map row times)
 
 decodeDay : Json.Decoder Day
 decodeDay =
@@ -70,8 +75,15 @@ decodeDay =
                    "friday" -> Json.succeed Friday
                    _ -> Json.fail "Invalid day")
 
-jsonDecode : Json.Decoder Timeslot
-jsonDecode =
+decode : Json.Decoder Timeslot
+decode =
     Json.object2 (,)
         ("day" := decodeDay)
         ("time" := Json.int)
+
+encode : Timeslot -> E.Value
+encode (day, time) =
+    E.object
+        [ ("day", E.string <| toString day)
+        , ("time", E.int time)
+        ]

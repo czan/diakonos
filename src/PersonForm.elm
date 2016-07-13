@@ -145,13 +145,17 @@ freeAt person timeslot =
 
 freetimeslot : Person -> Timeslot -> Html Msg
 freetimeslot person timeslot =
-    input [ type' "checkbox"
-          , checked (freeAt person timeslot)
-          , onCheck (UpdateFree timeslot)
-          ] []
+    let free = freeAt person timeslot
+    in td []
+        [ div [ classList [ ("free", free)
+                          , ("busy", not free)
+                          ]
+              , onClick (UpdateFree timeslot <| not free)
+              ] [ ]
+        ]
 
 viewFree : Person -> Html Msg
 viewFree person =
-    Timeslot.table (freetimeslot person)
+    Timeslot.table [] (freetimeslot person)
     
         

@@ -11,12 +11,15 @@ import Keyboard
 import Util exposing ((!!))
 
 import PersonPage
+import TimePage
 import GroupPage
 
 type PageName = People
+              | Times
               | Groups
 
 type Msg = PersonMsg PersonPage.Msg
+         | TimeMsg TimePage.Msg
          | GroupMsg GroupPage.Msg
          | ChangePage PageName
          | KeyDown Keyboard.KeyCode
@@ -25,35 +28,59 @@ type Msg = PersonMsg PersonPage.Msg
 type ParentMsg = None
 
 type PageModel = Person PersonPage.Model
+               | Time TimePage.Model
                | Group GroupPage.Model
 
 type alias Model =
     { page : PageModel
-    , people : Dict Person.Id Person
-    , groups : Dict Group.Id Group
+    , people : Person.Dict
+    , groups : Group.Dict
     , ctrlDown : Bool
     }
 
 init : Person.Dict -> Group.Dict -> (Model, Cmd Msg)
 init people groups =
-    let (model, cmd) = PersonPage.init people
-    in { page = Person model
+    let
+        -- (model, cmd) = PersonPage.init people
+        -- (model, cmd) = TimePage.init people groups
+        (model, cmd) = GroupPage.init people groups
+    in { page = Group model
        , people = people
        , groups = groups
        , ctrlDown = False
-       } ! [ Cmd.map PersonMsg cmd ]
+       } ! [ Cmd.map GroupMsg cmd ]
 
-updatePerson : PersonPage.ParentMsg -> Model -> Model
+updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updatePerson msg model =
     case msg of
         PersonPage.SavePerson id person ->
-            { model | people = Dict.insert id person model.people }
+            let people' = Dict.insert id person model.people
+            in { model | people = people' } ! [] !! None
 
         PersonPage.None ->
-            model
+            model ! [] !! None
 
-updateGroup : GroupPage.ParentMsg -> Model -> Model
-updateGroup msg model = model
+updateTime : TimePage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
+updateTime msg model =
+    case msg of
+        TimePage.SaveGroups groups ->
+            let groups' = groups
+            in { model | groups = groups } ! [] !! None
+
+        TimePage.None ->
+            model ! [] !! None
+
+
+updateGroup : GroupPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
+updateGroup msg model =
+    case msg of
+        GroupPage.SaveGroups groups ->
+            let groups' = groups
+            in { model | groups = groups } ! [] !! None
+
+        GroupPage.None ->
+            model ! [] !! None
+
 
 updateKeyup : Keyboard.KeyCode -> Model -> Model
 updateKeyup key model =
@@ -73,10 +100,15 @@ changePageLeft : Model -> (Model, Cmd Msg)
 changePageLeft model =
     case model.page of
         Person _ -> changePage Groups model
-        Group _ -> changePage People model
+        Time _ -> changePage People model
+        Group _ -> changePage Times model
 
 changePageRight : Model -> (Model, Cmd Msg)
-changePageRight = changePageLeft -- they're the same if there are only two pages
+changePageRight model =
+    case model.page of
+        Person _ -> changePage Times model
+        Time _ -> changePage Groups model
+        Group _ -> changePage People model
 
 changePage : PageName -> Model -> (Model, Cmd Msg)
 changePage page model =
@@ -84,6 +116,10 @@ changePage page model =
         People ->
             let (pmodel, pcmd) = PersonPage.init model.people
             in { model | page = Person pmodel } ! [ Cmd.map PersonMsg pcmd ]
+
+        Times ->
+            let (pmodel, pcmd) = TimePage.init model.people model.groups
+            in { model | page = Time pmodel } ! [ Cmd.map TimeMsg pcmd ]
 
         Groups ->
             let (pmodel, pcmd) = GroupPage.init model.people model.groups
@@ -93,17 +129,25 @@ update : Msg -> Model -> (Model, Cmd Msg, ParentMsg)
 update msg model =
     case (msg, model.page) of
         (PersonMsg pmsg, Person pmodel) ->
-            let (pmodel, pcmd, parentMsg) = PersonPage.update pmsg pmodel
-                model' = updatePerson parentMsg model
-            in { model' | page = Person pmodel } ! [ Cmd.map PersonMsg pcmd ] !! None
+            let (pmodel', pcmd, parentMsg) = PersonPage.update pmsg pmodel
+                (model', cmd, msg) = updatePerson parentMsg model
+            in { model' | page = Person pmodel' } ! [ Cmd.map PersonMsg pcmd, cmd ] !! msg
 
         (PersonMsg _, _) ->
             model ! [] !! None
 
+        (TimeMsg pmsg, Time pmodel) ->
+            let (pmodel', pcmd, parentMsg) = TimePage.update pmsg pmodel
+                (model', cmd, msg) = updateTime parentMsg model
+            in { model' | page = Time pmodel' } ! [ Cmd.map TimeMsg pcmd, cmd ] !! msg
+
+        (TimeMsg _, _) ->
+            model ! [] !! None
+
         (GroupMsg pmsg, Group pmodel) ->
-            let (pmodel, pcmd, parentMsg) = GroupPage.update pmsg pmodel
-                model' = updateGroup parentMsg model
-            in { model' | page = Group pmodel } ! [ Cmd.map GroupMsg pcmd ] !! None
+            let (pmodel', pcmd, parentMsg) = GroupPage.update pmsg pmodel
+                (model', cmd, msg) = updateGroup parentMsg model
+            in { model' | page = Group pmodel' } ! [ Cmd.map GroupMsg pcmd, cmd ] !! msg
 
         (GroupMsg _, _) ->
             model ! [] !! None
@@ -122,6 +166,7 @@ view model =
     div [ id "container" ]
         [ div [class "navigation"]
               [ viewNavLink People model.page
+              , viewNavLink Times model.page
               , viewNavLink Groups model.page
               ]
         , viewPage model
@@ -131,6 +176,7 @@ viewNavLink : PageName -> PageModel -> Html Msg
 viewNavLink page model =
     let selected = case (model, page) of
                        (Person _, People) -> True
+                       (Time _, Times) -> True
                        (Group _, Groups) -> True
                        _ -> False
     in
@@ -142,10 +188,13 @@ viewPage : Model -> Html Msg
 viewPage model =
     case model.page of
         Person pmodel ->
-            App.map PersonMsg (PersonPage.view pmodel)
+            App.map PersonMsg <| PersonPage.view pmodel
 
-        Group gmodel ->
-            App.map GroupMsg (GroupPage.view gmodel)
+        Time pmodel ->
+            App.map TimeMsg <| TimePage.view pmodel
+
+        Group pmodel ->
+            App.map GroupMsg <| GroupPage.view pmodel
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -168,7 +217,10 @@ pageSubscriptions : Model -> Sub Msg
 pageSubscriptions model =
     case model.page of
         Person pmodel ->
-            Sub.map PersonMsg (PersonPage.subscriptions pmodel)
+            Sub.map PersonMsg <| PersonPage.subscriptions pmodel
 
-        Group gmodel ->
-            Sub.map GroupMsg (GroupPage.subscriptions gmodel)
+        Time pmodel ->
+            Sub.map TimeMsg <| TimePage.subscriptions pmodel
+
+        Group pmodel ->
+            Sub.map GroupMsg <| GroupPage.subscriptions pmodel

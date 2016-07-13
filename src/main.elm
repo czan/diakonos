@@ -1,6 +1,5 @@
 import Html.App as App
 import Pages
-
 import Dict exposing (Dict)
 import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
@@ -9,19 +8,25 @@ import Json.Decode as Json exposing ((:=))
 import Task
 import Http
 
-type Msg = RestoreData (Person.Dict, Group.Dict)
-         | RestoreFail Http.Error
-         | PageMsg Pages.Msg
 
-type State = Loaded Pages.Model
-           | Loading
-           | Failed
+type Msg
+    = RestoreData (Person.Dict, Group.Dict)
+    | RestoreFail Http.Error
+    | PageMsg Pages.Msg
+
+
+type State
+    = Loaded Pages.Model
+    | Loading
+    | Failed
+
 
 type alias Model =
     { people : Person.Dict
     , groups : Group.Dict
     , state : State
     }
+
 
 main : Program Never
 main =
@@ -32,16 +37,18 @@ main =
         , subscriptions = subscriptions
         }
 
+
 init : String -> (Model, Cmd Msg)
 init url =
     let request = url
                 |> Http.get (Json.object2 (,)
-                                 ("people" := Json.dict Person.jsonDecode)
-                                 ("groups" := Json.dict Group.jsonDecode))
+                                 ("people" := Json.dict Person.decode)
+                                 ("groups" := Json.dict Group.decode))
     in { people = Dict.empty
        , groups = Dict.empty
        , state = Loading
        } ! [ Task.perform RestoreFail RestoreData request ]
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -73,6 +80,7 @@ updateFromPages msg model =
     case msg of
         Pages.None ->
             model ! []
+
 
 view : Model -> Html Msg
 view model =

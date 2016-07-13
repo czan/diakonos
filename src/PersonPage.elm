@@ -8,10 +8,8 @@ import Data.Person as Person exposing (Person, Role(..), Gender(..))
 import PersonForm as PersonForm
 import Dict exposing (Dict)
 import Random
-import Char
-import String
 import Keyboard
-import Util exposing ((!!), dropWhile, takeWhile)
+import Util exposing ((!!), dropWhile, takeWhile, idGenerator)
 import Ports exposing (scrollToVisible)
 
 type alias Model =
@@ -30,18 +28,6 @@ type Msg = Select (Maybe Person.Id)
 
 type ParentMsg = SavePerson Person.Id Person
                | None
-
-toHex : Int -> Char
-toHex i = Char.fromCode (if i < 10 then
-                             48 + i
-                         else
-                             97 + (i - 10))
-           
-numListToHex : List Int -> String
-numListToHex l = String.join "" (List.map (String.fromChar << toHex) l)
-           
-idGenerator : Random.Generator Person.Id
-idGenerator = Random.map numListToHex (Random.list 20 (Random.int 0 15))
 
 init : Dict String Person -> ( Model, Cmd Msg )
 init people =
@@ -104,7 +90,7 @@ update msg model =
             updateSelection id model !! None
 
         Add person ->
-            model ! [Random.generate (\i -> Save i person) idGenerator] !! None
+            model ! [ Random.generate (flip Save person) idGenerator ] !! None
 
         Save id person ->
             updateSelection (Just id) { model | people = Dict.insert id person model.people } !! SavePerson id person
@@ -197,15 +183,20 @@ viewList model =
                                              , ("selected", selected (Just pid))]
                                  , id ("person-" ++ pid)
                                  ] [text person.name]
-        roleIs value (_, person) = (value == person.role)
-        asglList = h1 [] [ text "ASGLs"] :: (people model
-                                            |> List.filter (roleIs Person.Asgl)
-                                            |> List.map item)
-        memberList = h1 [] [ text "Members"] :: (people model
-                                                |> List.filter (roleIs Person.Member)
-                                                |> List.map item)
+        asglList = people model
+                 |> List.filter (snd >> .role >> (==) Person.Asgl)
+                 |> List.map item
+        memberList = people model
+                   |> List.filter (snd >> .role >> (==) Person.Member)
+                   |> List.map item
     in div [class "person-list"]
-        ([nullItem] ++ asglList ++ memberList)
+        (List.concat
+             [ [ nullItem ]
+             , [ h1 [] [ text "ASGLs" ] ]
+             , asglList
+             , [ h1 [] [ text "Members" ] ]
+             , memberList
+             ])
 
 viewForm : Model -> Html Msg
 viewForm model =

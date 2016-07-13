@@ -6,10 +6,9 @@ html, body {
 }
 
 #container {
-    width: 100%;
+    width: calc(100% - 22px);
     height: calc(100% - 22px);
-    max-width: 800px;
-    margin: 10px auto;
+    margin: 10px;
     border: 1px solid #000;
 }
 
@@ -81,4 +80,188 @@ html, body {
 
 .person-page .form table {
     margin: 0 auto;
+    text-align: center;
+    height: 700px;
+}
+
+.person-page .free {
+    background: #fff;
+    height: 100%;
+    width: 100%;
+}
+
+.person-page .busy {
+    background: #000;
+    height: 100%;
+    width: 100%;
+}
+
+.person-page td {
+    width: 19%;
+}
+
+.person-page td:first-child {
+    width: 5%;
+}
+
+.person-page tr {
+    height: 10%;
+}
+
+.person-page tr:first-child {
+    height: 5%;
+}
+
+.time-page {
+    height: 100%;
+}
+
+.time-page .in-group {
+    opacity: 0.1;
+}
+
+.time-page .no-group {
+    color: #f00;
+}
+
+.time-page .has-group.error {
+    border: 5px solid #f00;
+}
+
+.time-page .has-group {
+    border: 5px solid #0f0;;
+}
+
+.time-page td.highlight {
+    outline: 5px solid #ff0;
+}
+
+.time-page .person-list .highlight {
+    background: #ff0;
+}
+
+.time-page .person {
+    display: block;
+}
+
+.time-page .person span {
+    cursor: pointer;
+}
+
+.time-page .person-list .person {
+    padding: 2px;
+}
+
+.time-page .asgl {
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.time-page .timetable {
+    display: inline-block;
+    vertical-align: top;
+    width: 60%;
+    height: calc(100% - 31px);
+    overflow-y: auto;
+}
+
+.time-page .timetable table {
+    text-align: center;
+    height: 100%;
+    width: 100%;
+}
+
+.time-page .timetable td {
+    width: 19%;
+    margin: 5px;
+    overflow: auto;
+}
+
+.time-page .timetable td:first-child {
+    width: 5%;
+}
+
+.time-page .timetable tr {
+    height: 11%;
+}
+
+.time-page .timetable tr:first-child {
+    height: 1%;
+}
+
+.time-page .person-list {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    height: calc(100% - 31px);
+    width: 20%;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.group-page {
+    height: 100%;
+}
+
+.group-page .group-list {
+    display: inline-block;
+    vertical-align: top;
+    width: 60%;
+    height: calc(100% - 31px);
+    overflow-y: auto;
+}
+
+.group-page > .person-list {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    height: calc(100% - 31px);
+    width: 20%;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.group-page .asgl {
+    font-style: italic;
+    text-decoration: underline;
+}
+
+.group-page > .person-list .highlight {
+    background: #ff0;
+}
+
+.group-page .person-list .person {
+    padding: 2px;
+}
+
+.group-page .in-group {
+    opacity: 0.1;
+}
+
+.group-page .no-group {
+    color: #f00;
+}
+
+.group-page .group {
+    display: inline-block;
+    text-align: center;
+    vertical-align: top;
+    width: 25%;
+    min-width: 200px;
+    background: #fff;
+}
+
+.group-page .group.error {
+    border: 5px solid #f00;
+}
+
+.group-page .group h1 {
+    font-size: 1.2em;
+    margin: 10px;
+}
+
+.group-page .group.highlight {
+    background: #ff0;
 }
