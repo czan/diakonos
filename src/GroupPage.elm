@@ -10,6 +10,8 @@ import Data.Person as Person exposing (Person)
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..))
 import Util exposing ((!!), hex, idGenerator)
 import DragAndDrop exposing (draggable, dragData, dropTarget, onDrop)
+import Validation exposing (validateGroup)
+import String
 
 
 type HoverState
@@ -142,10 +144,19 @@ viewGroup hover index people (id, group) =
 
                           _ ->
                               False
+
+        groupErrors = validateGroup people group
+
+        (hasErrors, errors) =
+            case groupErrors of
+                Err errors -> (True, errors)
+                _ -> (False, [])
     in
         div [ A.classList [ ("group", True)
                           , ("highlight", highlighted)
+                          , ("error", hasErrors)
                           ]
+            , A.title (String.join "\n" errors)
             , dropTarget True
             , onDrop Person.idDrag (flip Move id)
             , onMouseOver (Hover <| HoverGroup group.time)

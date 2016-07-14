@@ -9681,6 +9681,135 @@ _user$project$Util_ops['!!'] = F2(
 		return {ctor: '_Tuple3', _0: _p6._0, _1: _p6._1, _2: c};
 	});
 
+var _user$project$Validation$validate = F3(
+	function (pred, message, value) {
+		return pred(value) ? _elm_lang$core$Result$Ok(value) : _elm_lang$core$Result$Err(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					message(value)
+				]));
+	});
+var _user$project$Validation$groupErrors = function (results) {
+	var grouping = F2(
+		function (acc, result) {
+			var _p0 = {ctor: '_Tuple2', _0: acc, _1: result};
+			if (_p0._0.ctor === 'Ok') {
+				if (_p0._1.ctor === 'Ok') {
+					return _elm_lang$core$Result$Ok(
+						A2(_elm_lang$core$List_ops['::'], _p0._0._0, _p0._1._0));
+				} else {
+					return _elm_lang$core$Result$Err(_p0._1._0);
+				}
+			} else {
+				if (_p0._1.ctor === 'Ok') {
+					return _elm_lang$core$Result$Err(_p0._0._0);
+				} else {
+					return _elm_lang$core$Result$Err(
+						A2(_elm_lang$core$Basics_ops['++'], _p0._0._0, _p0._1._0));
+				}
+			}
+		});
+	return A3(
+		_elm_lang$core$List$foldl,
+		grouping,
+		_elm_lang$core$Result$Ok(
+			_elm_lang$core$Native_List.fromArray(
+				[])),
+		results);
+};
+var _user$project$Validation$validateEnoughLeaders = function (leaders) {
+	var female = A2(
+		_elm_lang$core$List$filter,
+		function (_p1) {
+			return A2(
+				F2(
+					function (x, y) {
+						return _elm_lang$core$Native_Utils.eq(x, y);
+					}),
+				_user$project$Data_Person$Female,
+				function (_) {
+					return _.gender;
+				}(_p1));
+		},
+		leaders);
+	var male = A2(
+		_elm_lang$core$List$filter,
+		function (_p2) {
+			return A2(
+				F2(
+					function (x, y) {
+						return _elm_lang$core$Native_Utils.eq(x, y);
+					}),
+				_user$project$Data_Person$Male,
+				function (_) {
+					return _.gender;
+				}(_p2));
+		},
+		leaders);
+	return A2(
+		_elm_lang$core$Result$map,
+		_elm_lang$core$Basics$always(
+			{ctor: '_Tuple0'}),
+		_user$project$Validation$groupErrors(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A3(
+					_user$project$Validation$validate,
+					function (x) {
+						return _elm_lang$core$Native_Utils.cmp(
+							_elm_lang$core$List$length(x),
+							1) > 0;
+					},
+					_elm_lang$core$Basics$always('Not enough leaders (minimum 2)'),
+					leaders),
+					A3(
+					_user$project$Validation$validate,
+					function (_p3) {
+						return _elm_lang$core$Basics$not(
+							_elm_lang$core$List$isEmpty(_p3));
+					},
+					_elm_lang$core$Basics$always('No male leaders'),
+					male),
+					A3(
+					_user$project$Validation$validate,
+					function (_p4) {
+						return _elm_lang$core$Basics$not(
+							_elm_lang$core$List$isEmpty(_p4));
+					},
+					_elm_lang$core$Basics$always('No female leaders'),
+					female)
+				])));
+};
+var _user$project$Validation$validateGroup = F2(
+	function (people, group) {
+		var members = A2(
+			_elm_lang$core$List$filterMap,
+			A2(_elm_lang$core$Basics$flip, _elm_lang$core$Dict$get, people),
+			_elm_lang$core$Set$toList(group.people));
+		var leaders = A2(
+			_elm_lang$core$List$filter,
+			function (_p5) {
+				return A2(
+					F2(
+						function (x, y) {
+							return _elm_lang$core$Native_Utils.eq(x, y);
+						}),
+					_user$project$Data_Person$Asgl,
+					function (_) {
+						return _.role;
+					}(_p5));
+			},
+			members);
+		var validators = _elm_lang$core$Native_List.fromArray(
+			[
+				_user$project$Validation$validateEnoughLeaders(leaders)
+			]);
+		return A2(
+			_elm_lang$core$Result$map,
+			_elm_lang$core$Basics$always(group),
+			_user$project$Validation$groupErrors(validators));
+	});
+
 var _user$project$GroupPage$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -9888,27 +10017,43 @@ var _user$project$GroupPage$Move = F2(
 var _user$project$GroupPage$viewGroup = F4(
 	function (hover, index, people, _p8) {
 		var _p9 = _p8;
-		var _p12 = _p9._1;
+		var _p14 = _p9._1;
+		var groupErrors = A2(_user$project$Validation$validateGroup, people, _p14);
+		var _p10 = function () {
+			var _p11 = groupErrors;
+			if (_p11.ctor === 'Err') {
+				return {ctor: '_Tuple2', _0: true, _1: _p11._0};
+			} else {
+				return {
+					ctor: '_Tuple2',
+					_0: false,
+					_1: _elm_lang$core$Native_List.fromArray(
+						[])
+				};
+			}
+		}();
+		var hasErrors = _p10._0;
+		var errors = _p10._1;
 		var highlighted = function () {
-			var _p10 = hover;
-			if (_p10.ctor === 'HoverPerson') {
+			var _p12 = hover;
+			if (_p12.ctor === 'HoverPerson') {
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
-						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p12.time),
-						A2(_elm_lang$core$Dict$get, _p10._0, people)));
+						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p14.time),
+						A2(_elm_lang$core$Dict$get, _p12._0, people)));
 			} else {
 				return false;
 			}
 		}();
-		var name = _user$project$Data_Timeslot$toString(_p12.time);
+		var name = _user$project$Data_Timeslot$toString(_p14.time);
 		var members = A2(
 			_elm_lang$core$Dict$filter,
 			F2(
-				function (id, _p11) {
-					return A2(_elm_lang$core$Set$member, id, _p12.people);
+				function (id, _p13) {
+					return A2(_elm_lang$core$Set$member, id, _p14.people);
 				}),
 			people);
 		return A2(
@@ -9919,8 +10064,11 @@ var _user$project$GroupPage$viewGroup = F4(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							{ctor: '_Tuple2', _0: 'group', _1: true},
-							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
+							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted},
+							{ctor: '_Tuple2', _0: 'error', _1: hasErrors}
 						])),
+					_elm_lang$html$Html_Attributes$title(
+					A2(_elm_lang$core$String$join, '\n', errors)),
 					_user$project$DragAndDrop$dropTarget(true),
 					A2(
 					_user$project$DragAndDrop$onDrop,
@@ -9928,7 +10076,7 @@ var _user$project$GroupPage$viewGroup = F4(
 					A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$Move, _p9._0)),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverGroup(_p12.time))),
+						_user$project$GroupPage$HoverGroup(_p14.time))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -9976,15 +10124,15 @@ var _user$project$GroupPage$viewGroups = F4(
 				A3(_user$project$GroupPage$viewGroup, hover, index, people),
 				_elm_lang$core$Dict$toList(groups)));
 	});
-var _user$project$GroupPage$view = function (_p13) {
-	var _p14 = _p13;
-	var _p18 = _p14.people;
-	var _p17 = _p14.hover;
-	var _p16 = _p14.groups;
-	var index = _user$project$Data_Group$makeIndex(_p16);
-	var _p15 = _user$project$GroupPage$splitRoles(_p18);
-	var leaders = _p15.leaders;
-	var members = _p15.members;
+var _user$project$GroupPage$view = function (_p15) {
+	var _p16 = _p15;
+	var _p20 = _p16.people;
+	var _p19 = _p16.hover;
+	var _p18 = _p16.groups;
+	var index = _user$project$Data_Group$makeIndex(_p18);
+	var _p17 = _user$project$GroupPage$splitRoles(_p20);
+	var leaders = _p17.leaders;
+	var members = _p17.members;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9993,9 +10141,9 @@ var _user$project$GroupPage$view = function (_p13) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A4(_user$project$GroupPage$viewGroups, _p17, index, _p18, _p16),
-				A4(_user$project$GroupPage$viewPeople, _p17, index, 'ASGLs', leaders),
-				A4(_user$project$GroupPage$viewPeople, _p17, index, 'Members', members)
+				A4(_user$project$GroupPage$viewGroups, _p19, index, _p20, _p18),
+				A4(_user$project$GroupPage$viewPeople, _p19, index, 'ASGLs', leaders),
+				A4(_user$project$GroupPage$viewPeople, _p19, index, 'Members', members)
 			]));
 };
 var _user$project$GroupPage$None = {ctor: 'None'};
@@ -10005,12 +10153,12 @@ var _user$project$GroupPage$SaveGroups = function (a) {
 var _user$project$GroupPage$update = F2(
 	function (msg, model) {
 		var index = _user$project$Data_Group$makeIndex(model.groups);
-		var _p19 = msg;
-		switch (_p19.ctor) {
+		var _p21 = msg;
+		switch (_p21.ctor) {
 			case 'Move':
 				var groups$ = A2(
 					_elm_lang$core$Dict$map,
-					A2(_user$project$GroupPage$fixGroup, _p19._1, _p19._0),
+					A2(_user$project$GroupPage$fixGroup, _p21._1, _p21._0),
 					model.groups);
 				return A2(
 					_user$project$Util_ops['!!'],
@@ -10023,15 +10171,15 @@ var _user$project$GroupPage$update = F2(
 							[])),
 					_user$project$GroupPage$SaveGroups(groups$));
 			case 'Remove':
-				var _p22 = _p19._0;
-				var _p20 = index.byPerson(_p22);
-				if (_p20.ctor === 'Just') {
-					var _p21 = _p20._0._1;
-					var people$ = A2(_elm_lang$core$Set$remove, _p22, _p21.people);
+				var _p24 = _p21._0;
+				var _p22 = index.byPerson(_p24);
+				if (_p22.ctor === 'Just') {
+					var _p23 = _p22._0._1;
+					var people$ = A2(_elm_lang$core$Set$remove, _p24, _p23.people);
 					var group$ = _elm_lang$core$Native_Utils.update(
-						_p21,
+						_p23,
 						{people: people$});
-					var groups$ = A3(_elm_lang$core$Dict$insert, _p20._0._0, group$, model.groups);
+					var groups$ = A3(_elm_lang$core$Dict$insert, _p22._0._0, group$, model.groups);
 					return A2(
 						_user$project$Util_ops['!!'],
 						A2(
@@ -10059,7 +10207,7 @@ var _user$project$GroupPage$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{hover: _p19._0}),
+							{hover: _p21._0}),
 						_elm_lang$core$Native_List.fromArray(
 							[])),
 					_user$project$GroupPage$None);
@@ -10893,135 +11041,6 @@ var _user$project$PersonPage$updateFromForm = F2(
 							[])),
 					_user$project$PersonPage$None);
 		}
-	});
-
-var _user$project$Validation$validate = F3(
-	function (pred, message, value) {
-		return pred(value) ? _elm_lang$core$Result$Ok(value) : _elm_lang$core$Result$Err(
-			_elm_lang$core$Native_List.fromArray(
-				[
-					message(value)
-				]));
-	});
-var _user$project$Validation$groupErrors = function (results) {
-	var grouping = F2(
-		function (acc, result) {
-			var _p0 = {ctor: '_Tuple2', _0: acc, _1: result};
-			if (_p0._0.ctor === 'Ok') {
-				if (_p0._1.ctor === 'Ok') {
-					return _elm_lang$core$Result$Ok(
-						A2(_elm_lang$core$List_ops['::'], _p0._0._0, _p0._1._0));
-				} else {
-					return _elm_lang$core$Result$Err(_p0._1._0);
-				}
-			} else {
-				if (_p0._1.ctor === 'Ok') {
-					return _elm_lang$core$Result$Err(_p0._0._0);
-				} else {
-					return _elm_lang$core$Result$Err(
-						A2(_elm_lang$core$Basics_ops['++'], _p0._0._0, _p0._1._0));
-				}
-			}
-		});
-	return A3(
-		_elm_lang$core$List$foldl,
-		grouping,
-		_elm_lang$core$Result$Ok(
-			_elm_lang$core$Native_List.fromArray(
-				[])),
-		results);
-};
-var _user$project$Validation$validateEnoughLeaders = function (leaders) {
-	var female = A2(
-		_elm_lang$core$List$filter,
-		function (_p1) {
-			return A2(
-				F2(
-					function (x, y) {
-						return _elm_lang$core$Native_Utils.eq(x, y);
-					}),
-				_user$project$Data_Person$Female,
-				function (_) {
-					return _.gender;
-				}(_p1));
-		},
-		leaders);
-	var male = A2(
-		_elm_lang$core$List$filter,
-		function (_p2) {
-			return A2(
-				F2(
-					function (x, y) {
-						return _elm_lang$core$Native_Utils.eq(x, y);
-					}),
-				_user$project$Data_Person$Male,
-				function (_) {
-					return _.gender;
-				}(_p2));
-		},
-		leaders);
-	return A2(
-		_elm_lang$core$Result$map,
-		_elm_lang$core$Basics$always(
-			{ctor: '_Tuple0'}),
-		_user$project$Validation$groupErrors(
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A3(
-					_user$project$Validation$validate,
-					function (x) {
-						return _elm_lang$core$Native_Utils.cmp(
-							_elm_lang$core$List$length(x),
-							1) > 0;
-					},
-					_elm_lang$core$Basics$always('Not enough leaders (minimum 2)'),
-					leaders),
-					A3(
-					_user$project$Validation$validate,
-					function (_p3) {
-						return _elm_lang$core$Basics$not(
-							_elm_lang$core$List$isEmpty(_p3));
-					},
-					_elm_lang$core$Basics$always('No male leaders'),
-					male),
-					A3(
-					_user$project$Validation$validate,
-					function (_p4) {
-						return _elm_lang$core$Basics$not(
-							_elm_lang$core$List$isEmpty(_p4));
-					},
-					_elm_lang$core$Basics$always('No female leaders'),
-					female)
-				])));
-};
-var _user$project$Validation$validateGroup = F2(
-	function (people, group) {
-		var members = A2(
-			_elm_lang$core$List$filterMap,
-			A2(_elm_lang$core$Basics$flip, _elm_lang$core$Dict$get, people),
-			_elm_lang$core$Set$toList(group.people));
-		var leaders = A2(
-			_elm_lang$core$List$filter,
-			function (_p5) {
-				return A2(
-					F2(
-						function (x, y) {
-							return _elm_lang$core$Native_Utils.eq(x, y);
-						}),
-					_user$project$Data_Person$Asgl,
-					function (_) {
-						return _.role;
-					}(_p5));
-			},
-			members);
-		var validators = _elm_lang$core$Native_List.fromArray(
-			[
-				_user$project$Validation$validateEnoughLeaders(leaders)
-			]);
-		return A2(
-			_elm_lang$core$Result$map,
-			_elm_lang$core$Basics$always(group),
-			_user$project$Validation$groupErrors(validators));
 	});
 
 var _user$project$TimePage$subscriptions = function (model) {

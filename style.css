@@ -254,8 +254,8 @@ html, body {
     background: #fff;
 }
 
-.group-page .group.error {
-    border: 5px solid #f00;
+.group-page .group.error h1 {
+    color: #f00;
 }
 
 .group-page .group h1 {
