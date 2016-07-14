@@ -167,10 +167,16 @@ viewGroup hover index people (id, group) =
                    |> List.map (viewPerson hover { index | byPerson = always Nothing })))
 
 
+compareGroups : (Group.Id, Group) -> (Group.Id, Group) -> Order
+compareGroups (lid, left) (rid, right) =
+    Timeslot.compare left.time right.time
+
+
 viewGroups : HoverState -> Group.Index -> Person.Dict -> Group.Dict -> Html Msg
 viewGroups hover index people groups =
     div [ A.class "group-list" ]
         (Dict.toList groups
+        |> List.sortWith compareGroups
         |> List.map (viewGroup hover index people))
 
 

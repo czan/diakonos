@@ -1,4 +1,4 @@
-module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, decode, encode, toString)
+module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, decode, encode, toString, compare)
 
 import Html exposing (..)
 import String
@@ -92,3 +92,24 @@ encode (day, time) =
         [ ("day", E.string <| Basics.toString day)
         , ("time", E.int time)
         ]
+
+compare : Timeslot -> Timeslot -> Order
+compare (lday, ltime) (rday, rtime) =
+    case compareDays lday rday of
+        EQ ->
+            Basics.compare ltime rtime
+        x ->
+            x
+
+compareDays : Day -> Day -> Order
+compareDays left right =
+    Basics.compare (dayIndex left) (dayIndex right)
+
+dayIndex : Day -> Int
+dayIndex day =
+    case day of
+        Monday -> 0
+        Tuesday -> 1
+        Wednesday -> 2
+        Thursday -> 3
+        Friday -> 4

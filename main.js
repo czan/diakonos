@@ -9182,8 +9182,41 @@ var _evancz$elm_http$Http$post = F3(
 			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
 	});
 
-var _user$project$Data_Timeslot$encode = function (_p0) {
-	var _p1 = _p0;
+var _user$project$Data_Timeslot$dayIndex = function (day) {
+	var _p0 = day;
+	switch (_p0.ctor) {
+		case 'Monday':
+			return 0;
+		case 'Tuesday':
+			return 1;
+		case 'Wednesday':
+			return 2;
+		case 'Thursday':
+			return 3;
+		default:
+			return 4;
+	}
+};
+var _user$project$Data_Timeslot$compareDays = F2(
+	function (left, right) {
+		return A2(
+			_elm_lang$core$Basics$compare,
+			_user$project$Data_Timeslot$dayIndex(left),
+			_user$project$Data_Timeslot$dayIndex(right));
+	});
+var _user$project$Data_Timeslot$compare = F2(
+	function (_p2, _p1) {
+		var _p3 = _p2;
+		var _p4 = _p1;
+		var _p5 = A2(_user$project$Data_Timeslot$compareDays, _p3._0, _p4._0);
+		if (_p5.ctor === 'EQ') {
+			return A2(_elm_lang$core$Basics$compare, _p3._1, _p4._1);
+		} else {
+			return _p5;
+		}
+	});
+var _user$project$Data_Timeslot$encode = function (_p6) {
+	var _p7 = _p6;
 	return _elm_lang$core$Json_Encode$object(
 		_elm_lang$core$Native_List.fromArray(
 			[
@@ -9191,16 +9224,16 @@ var _user$project$Data_Timeslot$encode = function (_p0) {
 				ctor: '_Tuple2',
 				_0: 'day',
 				_1: _elm_lang$core$Json_Encode$string(
-					_elm_lang$core$Basics$toString(_p1._0))
+					_elm_lang$core$Basics$toString(_p7._0))
 			},
 				{
 				ctor: '_Tuple2',
 				_0: 'time',
-				_1: _elm_lang$core$Json_Encode$int(_p1._1)
+				_1: _elm_lang$core$Json_Encode$int(_p7._1)
 			}
 			]));
 };
-var _user$project$Data_Timeslot$timeString = function (_p2) {
+var _user$project$Data_Timeslot$timeString = function (_p8) {
 	return A3(
 		_elm_lang$core$String$padRight,
 		4,
@@ -9209,17 +9242,17 @@ var _user$project$Data_Timeslot$timeString = function (_p2) {
 			_elm_lang$core$String$padLeft,
 			2,
 			_elm_lang$core$Native_Utils.chr('0'),
-			_elm_lang$core$Basics$toString(_p2)));
+			_elm_lang$core$Basics$toString(_p8)));
 };
-var _user$project$Data_Timeslot$toString = function (_p3) {
-	var _p4 = _p3;
+var _user$project$Data_Timeslot$toString = function (_p9) {
+	var _p10 = _p9;
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		_elm_lang$core$Basics$toString(_p4._0),
+		_elm_lang$core$Basics$toString(_p10._0),
 		A2(
 			_elm_lang$core$Basics_ops['++'],
 			'@',
-			_user$project$Data_Timeslot$timeString(_p4._1)));
+			_user$project$Data_Timeslot$timeString(_p10._1)));
 };
 var _user$project$Data_Timeslot$timetitle = function (time) {
 	return A2(
@@ -9254,8 +9287,8 @@ var _user$project$Data_Timeslot$daytitle = function (day) {
 					[
 						_elm_lang$html$Html$text(
 						function () {
-							var _p5 = day;
-							switch (_p5.ctor) {
+							var _p11 = day;
+							switch (_p11.ctor) {
 								case 'Monday':
 									return 'mo';
 								case 'Tuesday':
@@ -9332,8 +9365,8 @@ var _user$project$Data_Timeslot$decodeDay = A2(
 	_elm_lang$core$Json_Decode$andThen,
 	_elm_lang$core$Json_Decode$string,
 	function (x) {
-		var _p6 = _elm_lang$core$String$toLower(x);
-		switch (_p6) {
+		var _p12 = _elm_lang$core$String$toLower(x);
+		switch (_p12) {
 			case 'monday':
 				return _elm_lang$core$Json_Decode$succeed(_user$project$Data_Timeslot$Monday);
 			case 'tuesday':
@@ -9848,6 +9881,12 @@ var _user$project$GroupPage$freeAt = F2(
 	function (person, timeslot) {
 		return A2(_elm_lang$core$List$member, timeslot, person.free);
 	});
+var _user$project$GroupPage$compareGroups = F2(
+	function (_p2, _p1) {
+		var _p3 = _p2;
+		var _p4 = _p1;
+		return A2(_user$project$Data_Timeslot$compare, _p3._1.time, _p4._1.time);
+	});
 var _user$project$GroupPage$hasRole = F3(
 	function (role, id, person) {
 		return _elm_lang$core$Native_Utils.eq(person.role, role);
@@ -9857,7 +9896,7 @@ var _user$project$GroupPage$splitRoles = function (people) {
 		leaders: A2(
 			_elm_lang$core$Dict$filter,
 			_elm_lang$core$Basics$always(
-				function (_p1) {
+				function (_p5) {
 					return A2(
 						F2(
 							function (x, y) {
@@ -9866,7 +9905,7 @@ var _user$project$GroupPage$splitRoles = function (people) {
 						_user$project$Data_Person$Asgl,
 						function (_) {
 							return _.role;
-						}(_p1));
+						}(_p5));
 				}),
 			people),
 		members: A2(
@@ -9905,20 +9944,20 @@ var _user$project$GroupPage$Hover = function (a) {
 	return {ctor: 'Hover', _0: a};
 };
 var _user$project$GroupPage$viewPerson = F3(
-	function (hover, index, _p2) {
-		var _p3 = _p2;
-		var _p6 = _p3._1;
-		var _p5 = _p3._0;
+	function (hover, index, _p6) {
+		var _p7 = _p6;
+		var _p10 = _p7._1;
+		var _p9 = _p7._0;
 		var highlighted = function () {
-			var _p4 = hover;
-			if (_p4.ctor === 'HoverGroup') {
+			var _p8 = hover;
+			if (_p8.ctor === 'HoverGroup') {
 				return A2(
 					_elm_lang$core$List$any,
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
-						})(_p4._0),
-					_p6.free);
+						})(_p8._0),
+					_p10.free);
 			} else {
 				return false;
 			}
@@ -9929,7 +9968,7 @@ var _user$project$GroupPage$viewPerson = F3(
 				function (x, y) {
 					return _elm_lang$core$Native_Utils.eq(x, y);
 				})(_elm_lang$core$Maybe$Nothing),
-			A2(_elm_lang$core$List$map, index.byTimeslot, _p6.free));
+			A2(_elm_lang$core$List$map, index.byTimeslot, _p10.free));
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9942,20 +9981,20 @@ var _user$project$GroupPage$viewPerson = F3(
 							ctor: '_Tuple2',
 							_0: 'in-group',
 							_1: !_elm_lang$core$Native_Utils.eq(
-								index.byPerson(_p5),
+								index.byPerson(_p9),
 								_elm_lang$core$Maybe$Nothing)
 						},
 							{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
 							{
 							ctor: '_Tuple2',
 							_0: 'asgl',
-							_1: _elm_lang$core$Native_Utils.eq(_p6.role, _user$project$Data_Person$Asgl)
+							_1: _elm_lang$core$Native_Utils.eq(_p10.role, _user$project$Data_Person$Asgl)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
 						])),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverPerson(_p5))),
+						_user$project$GroupPage$HoverPerson(_p9))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -9966,11 +10005,11 @@ var _user$project$GroupPage$viewPerson = F3(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_user$project$DragAndDrop$draggable(true),
-							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p5)
+							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p9)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p6.name)
+							_elm_lang$html$Html$text(_p10.name)
 						]))
 				]));
 	});
@@ -10002,11 +10041,11 @@ var _user$project$GroupPage$viewPeople = F4(
 					A2(_user$project$GroupPage$viewPerson, hover, index),
 					A2(
 						_elm_lang$core$List$sortBy,
-						function (_p7) {
+						function (_p11) {
 							return function (_) {
 								return _.name;
 							}(
-								_elm_lang$core$Basics$snd(_p7));
+								_elm_lang$core$Basics$snd(_p11));
 						},
 						_elm_lang$core$Dict$toList(people)))));
 	});
@@ -10015,14 +10054,14 @@ var _user$project$GroupPage$Move = F2(
 		return {ctor: 'Move', _0: a, _1: b};
 	});
 var _user$project$GroupPage$viewGroup = F4(
-	function (hover, index, people, _p8) {
-		var _p9 = _p8;
-		var _p14 = _p9._1;
-		var groupErrors = A2(_user$project$Validation$validateGroup, people, _p14);
-		var _p10 = function () {
-			var _p11 = groupErrors;
-			if (_p11.ctor === 'Err') {
-				return {ctor: '_Tuple2', _0: true, _1: _p11._0};
+	function (hover, index, people, _p12) {
+		var _p13 = _p12;
+		var _p18 = _p13._1;
+		var groupErrors = A2(_user$project$Validation$validateGroup, people, _p18);
+		var _p14 = function () {
+			var _p15 = groupErrors;
+			if (_p15.ctor === 'Err') {
+				return {ctor: '_Tuple2', _0: true, _1: _p15._0};
 			} else {
 				return {
 					ctor: '_Tuple2',
@@ -10032,28 +10071,28 @@ var _user$project$GroupPage$viewGroup = F4(
 				};
 			}
 		}();
-		var hasErrors = _p10._0;
-		var errors = _p10._1;
+		var hasErrors = _p14._0;
+		var errors = _p14._1;
 		var highlighted = function () {
-			var _p12 = hover;
-			if (_p12.ctor === 'HoverPerson') {
+			var _p16 = hover;
+			if (_p16.ctor === 'HoverPerson') {
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
-						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p14.time),
-						A2(_elm_lang$core$Dict$get, _p12._0, people)));
+						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p18.time),
+						A2(_elm_lang$core$Dict$get, _p16._0, people)));
 			} else {
 				return false;
 			}
 		}();
-		var name = _user$project$Data_Timeslot$toString(_p14.time);
+		var name = _user$project$Data_Timeslot$toString(_p18.time);
 		var members = A2(
 			_elm_lang$core$Dict$filter,
 			F2(
-				function (id, _p13) {
-					return A2(_elm_lang$core$Set$member, id, _p14.people);
+				function (id, _p17) {
+					return A2(_elm_lang$core$Set$member, id, _p18.people);
 				}),
 			people);
 		return A2(
@@ -10073,10 +10112,10 @@ var _user$project$GroupPage$viewGroup = F4(
 					A2(
 					_user$project$DragAndDrop$onDrop,
 					_user$project$Data_Person$idDrag,
-					A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$Move, _p9._0)),
+					A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$Move, _p13._0)),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverGroup(_p14.time))),
+						_user$project$GroupPage$HoverGroup(_p18.time))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -10122,17 +10161,20 @@ var _user$project$GroupPage$viewGroups = F4(
 			A2(
 				_elm_lang$core$List$map,
 				A3(_user$project$GroupPage$viewGroup, hover, index, people),
-				_elm_lang$core$Dict$toList(groups)));
+				A2(
+					_elm_lang$core$List$sortWith,
+					_user$project$GroupPage$compareGroups,
+					_elm_lang$core$Dict$toList(groups))));
 	});
-var _user$project$GroupPage$view = function (_p15) {
-	var _p16 = _p15;
-	var _p20 = _p16.people;
-	var _p19 = _p16.hover;
-	var _p18 = _p16.groups;
-	var index = _user$project$Data_Group$makeIndex(_p18);
-	var _p17 = _user$project$GroupPage$splitRoles(_p20);
-	var leaders = _p17.leaders;
-	var members = _p17.members;
+var _user$project$GroupPage$view = function (_p19) {
+	var _p20 = _p19;
+	var _p24 = _p20.people;
+	var _p23 = _p20.hover;
+	var _p22 = _p20.groups;
+	var index = _user$project$Data_Group$makeIndex(_p22);
+	var _p21 = _user$project$GroupPage$splitRoles(_p24);
+	var leaders = _p21.leaders;
+	var members = _p21.members;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10141,9 +10183,9 @@ var _user$project$GroupPage$view = function (_p15) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A4(_user$project$GroupPage$viewGroups, _p19, index, _p20, _p18),
-				A4(_user$project$GroupPage$viewPeople, _p19, index, 'ASGLs', leaders),
-				A4(_user$project$GroupPage$viewPeople, _p19, index, 'Members', members)
+				A4(_user$project$GroupPage$viewGroups, _p23, index, _p24, _p22),
+				A4(_user$project$GroupPage$viewPeople, _p23, index, 'ASGLs', leaders),
+				A4(_user$project$GroupPage$viewPeople, _p23, index, 'Members', members)
 			]));
 };
 var _user$project$GroupPage$None = {ctor: 'None'};
@@ -10153,12 +10195,12 @@ var _user$project$GroupPage$SaveGroups = function (a) {
 var _user$project$GroupPage$update = F2(
 	function (msg, model) {
 		var index = _user$project$Data_Group$makeIndex(model.groups);
-		var _p21 = msg;
-		switch (_p21.ctor) {
+		var _p25 = msg;
+		switch (_p25.ctor) {
 			case 'Move':
 				var groups$ = A2(
 					_elm_lang$core$Dict$map,
-					A2(_user$project$GroupPage$fixGroup, _p21._1, _p21._0),
+					A2(_user$project$GroupPage$fixGroup, _p25._1, _p25._0),
 					model.groups);
 				return A2(
 					_user$project$Util_ops['!!'],
@@ -10171,15 +10213,15 @@ var _user$project$GroupPage$update = F2(
 							[])),
 					_user$project$GroupPage$SaveGroups(groups$));
 			case 'Remove':
-				var _p24 = _p21._0;
-				var _p22 = index.byPerson(_p24);
-				if (_p22.ctor === 'Just') {
-					var _p23 = _p22._0._1;
-					var people$ = A2(_elm_lang$core$Set$remove, _p24, _p23.people);
+				var _p28 = _p25._0;
+				var _p26 = index.byPerson(_p28);
+				if (_p26.ctor === 'Just') {
+					var _p27 = _p26._0._1;
+					var people$ = A2(_elm_lang$core$Set$remove, _p28, _p27.people);
 					var group$ = _elm_lang$core$Native_Utils.update(
-						_p23,
+						_p27,
 						{people: people$});
-					var groups$ = A3(_elm_lang$core$Dict$insert, _p22._0._0, group$, model.groups);
+					var groups$ = A3(_elm_lang$core$Dict$insert, _p26._0._0, group$, model.groups);
 					return A2(
 						_user$project$Util_ops['!!'],
 						A2(
@@ -10207,7 +10249,7 @@ var _user$project$GroupPage$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{hover: _p21._0}),
+							{hover: _p25._0}),
 						_elm_lang$core$Native_List.fromArray(
 							[])),
 					_user$project$GroupPage$None);
@@ -11367,8 +11409,8 @@ var _user$project$TimePage$Add = F2(
 var _user$project$TimePage$viewTimeslot = F4(
 	function (hover, people, _p9, timeslot) {
 		var _p10 = _p9;
-		var _p17 = _p10.weight;
-		var _p16 = _p10.index;
+		var _p18 = _p10.weight;
+		var _p17 = _p10.index;
 		var groupErrors = A2(
 			_elm_lang$core$Maybe$map,
 			function (_p11) {
@@ -11377,7 +11419,7 @@ var _user$project$TimePage$viewTimeslot = F4(
 					people,
 					_elm_lang$core$Basics$snd(_p11));
 			},
-			_p16.byTimeslot(timeslot));
+			_p17.byTimeslot(timeslot));
 		var hasErrors = A2(
 			_elm_lang$core$Result$withDefault,
 			true,
@@ -11417,7 +11459,7 @@ var _user$project$TimePage$viewTimeslot = F4(
 				return false;
 			}
 		}();
-		var mGroup = _p16.byTimeslot(timeslot);
+		var mGroup = _p17.byTimeslot(timeslot);
 		var groupPeople = A2(
 			_elm_lang$core$Maybe$withDefault,
 			_elm_lang$core$Set$empty,
@@ -11448,9 +11490,9 @@ var _user$project$TimePage$viewTimeslot = F4(
 		var leaderCount = _elm_lang$core$List$length(
 			_p10.leaders(timeslot));
 		var background = (_elm_lang$core$Native_Utils.cmp(leaderCount, 2) < 0) ? '#000' : _user$project$TimePage$valueToBackgroundColor(
-			_p17(timeslot));
+			_p18(timeslot));
 		var foreground = (_elm_lang$core$Native_Utils.cmp(leaderCount, 2) < 0) ? '#000' : _user$project$TimePage$valueToTextColor(
-			_p17(timeslot));
+			_p18(timeslot));
 		return A2(
 			_elm_lang$html$Html$td,
 			_elm_lang$core$Native_List.fromArray(
@@ -11474,14 +11516,19 @@ var _user$project$TimePage$viewTimeslot = F4(
 					A2(
 					_user$project$DragAndDrop$onDrop,
 					_user$project$Data_Person$idDrag,
-					_user$project$TimePage$Add(timeslot)),
+					function (_p16) {
+						return A2(
+							_user$project$TimePage$Add,
+							timeslot,
+							_elm_lang$core$Maybe$Just(_p16));
+					}),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$TimePage$Hover(
 						_user$project$TimePage$HoverTimeslot(timeslot))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$TimePage$Hover(_user$project$TimePage$NoHover)),
 					_elm_lang$html$Html_Events$onClick(
-					_user$project$TimePage$Delete(timeslot))
+					hasGroup ? _user$project$TimePage$Delete(timeslot) : A2(_user$project$TimePage$Add, timeslot, _elm_lang$core$Maybe$Nothing))
 				]),
 			_elm_lang$core$Set$isEmpty(groupPeople) ? _elm_lang$core$Native_List.fromArray(
 				[
@@ -11499,7 +11546,7 @@ var _user$project$TimePage$viewTimeslot = F4(
 					_user$project$TimePage$viewPerson,
 					hover,
 					_elm_lang$core$Native_Utils.update(
-						_p16,
+						_p17,
 						{
 							byPerson: _elm_lang$core$Basics$always(_elm_lang$core$Maybe$Nothing)
 						})),
@@ -11513,12 +11560,12 @@ var _user$project$TimePage$viewTimeslot = F4(
 	});
 var _user$project$TimePage$view = function (model) {
 	var index = _user$project$Data_Group$makeIndex(model.groups);
-	var _p18 = model;
-	var people = _p18.people;
-	var groups = _p18.groups;
-	var _p19 = _user$project$TimePage$splitRoles(people);
-	var leaders = _p19.leaders;
-	var members = _p19.members;
+	var _p19 = model;
+	var people = _p19.people;
+	var groups = _p19.groups;
+	var _p20 = _user$project$TimePage$splitRoles(people);
+	var leaders = _p20.leaders;
+	var members = _p20.members;
 	var weights = _user$project$TimePage$peopleWeights(
 		_elm_lang$core$Dict$values(people));
 	var fns = {
@@ -11568,14 +11615,13 @@ var _user$project$TimePage$update = F2(
 					return A3(_user$project$TimePage$Create, id, timeslot, personId);
 				});
 			var index = _user$project$Data_Group$makeIndex(model.groups);
-			var _p20 = msg;
-			switch (_p20.ctor) {
+			var _p21 = msg;
+			switch (_p21.ctor) {
 				case 'Add':
-					var _p22 = _p20._0;
-					var _p21 = _p20._1;
-					if (_elm_lang$core$Native_Utils.eq(
-						index.byTimeslot(_p22),
-						_elm_lang$core$Maybe$Nothing)) {
+					var _p25 = _p21._0;
+					var _p24 = _p21._1;
+					var _p22 = index.byTimeslot(_p25);
+					if (_p22.ctor === 'Nothing') {
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -11585,51 +11631,63 @@ var _user$project$TimePage$update = F2(
 									[
 										A2(
 										_elm_lang$core$Random$generate,
-										A2(create, _p21, _p22),
+										A2(create, _p24, _p25),
 										_user$project$Util$idGenerator)
 									])),
 							_user$project$TimePage$None);
 					} else {
-						var groups$ = A2(
-							_elm_lang$core$Dict$map,
-							A2(_user$project$TimePage$fixGroup, _p22, _p21),
-							model.groups);
-						return A2(
-							_user$project$Util_ops['!!'],
-							A2(
-								_elm_lang$core$Platform_Cmd_ops['!'],
-								_elm_lang$core$Native_Utils.update(
+						var _p23 = _p24;
+						if (_p23.ctor === 'Nothing') {
+							return A2(
+								_user$project$Util_ops['!!'],
+								A2(
+									_elm_lang$core$Platform_Cmd_ops['!'],
 									model,
-									{groups: groups$}),
-								_elm_lang$core$Native_List.fromArray(
-									[])),
-							_user$project$TimePage$SaveGroups(groups$));
+									_elm_lang$core$Native_List.fromArray(
+										[])),
+								_user$project$TimePage$SaveGroups(model.groups));
+						} else {
+							var groups$ = A2(
+								_elm_lang$core$Dict$map,
+								A2(_user$project$TimePage$fixGroup, _p25, _p23._0),
+								model.groups);
+							return A2(
+								_user$project$Util_ops['!!'],
+								A2(
+									_elm_lang$core$Platform_Cmd_ops['!'],
+									_elm_lang$core$Native_Utils.update(
+										model,
+										{groups: groups$}),
+									_elm_lang$core$Native_List.fromArray(
+										[])),
+								_user$project$TimePage$SaveGroups(groups$));
+						}
 					}
 				case 'Create':
-					var _p23 = _p20._1;
-					var group = {time: _p23, people: _elm_lang$core$Set$empty};
-					var groups$ = A3(_elm_lang$core$Dict$insert, _p20._0, group, model.groups);
-					var _v8 = A2(_user$project$TimePage$Add, _p23, _p20._2),
-						_v9 = _elm_lang$core$Native_Utils.update(
+					var _p26 = _p21._1;
+					var group = {time: _p26, people: _elm_lang$core$Set$empty};
+					var groups$ = A3(_elm_lang$core$Dict$insert, _p21._0, group, model.groups);
+					var _v10 = A2(_user$project$TimePage$Add, _p26, _p21._2),
+						_v11 = _elm_lang$core$Native_Utils.update(
 						model,
 						{groups: groups$});
-					msg = _v8;
-					model = _v9;
+					msg = _v10;
+					model = _v11;
 					continue update;
 				case 'Move':
-					var _p27 = _p20._1;
-					var _p26 = _p20._0;
-					var _p24 = {
+					var _p30 = _p21._1;
+					var _p29 = _p21._0;
+					var _p27 = {
 						ctor: '_Tuple2',
-						_0: A2(_elm_lang$core$Dict$get, _p26, model.groups),
-						_1: index.byTimeslot(_p27)
+						_0: A2(_elm_lang$core$Dict$get, _p29, model.groups),
+						_1: index.byTimeslot(_p30)
 					};
-					if (((_p24.ctor === '_Tuple2') && (_p24._0.ctor === 'Just')) && (_p24._1.ctor === 'Nothing')) {
-						var _p25 = _p24._0._0;
-						var groups$ = A3(_elm_lang$core$Dict$insert, _p26, _p25, model.groups);
+					if (((_p27.ctor === '_Tuple2') && (_p27._0.ctor === 'Just')) && (_p27._1.ctor === 'Nothing')) {
+						var _p28 = _p27._0._0;
+						var groups$ = A3(_elm_lang$core$Dict$insert, _p29, _p28, model.groups);
 						var group$ = _elm_lang$core$Native_Utils.update(
-							_p25,
-							{time: _p27});
+							_p28,
+							{time: _p30});
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -11651,15 +11709,15 @@ var _user$project$TimePage$update = F2(
 							_user$project$TimePage$None);
 					}
 				case 'Remove':
-					var _p30 = _p20._0;
-					var _p28 = index.byPerson(_p30);
-					if (_p28.ctor === 'Just') {
-						var _p29 = _p28._0._1;
-						var people$ = A2(_elm_lang$core$Set$remove, _p30, _p29.people);
+					var _p33 = _p21._0;
+					var _p31 = index.byPerson(_p33);
+					if (_p31.ctor === 'Just') {
+						var _p32 = _p31._0._1;
+						var people$ = A2(_elm_lang$core$Set$remove, _p33, _p32.people);
 						var group$ = _elm_lang$core$Native_Utils.update(
-							_p29,
+							_p32,
 							{people: people$});
-						var groups$ = A3(_elm_lang$core$Dict$insert, _p28._0._0, group$, model.groups);
+						var groups$ = A3(_elm_lang$core$Dict$insert, _p31._0._0, group$, model.groups);
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -11681,10 +11739,10 @@ var _user$project$TimePage$update = F2(
 							_user$project$TimePage$None);
 					}
 				case 'Delete':
-					var _p31 = index.byTimeslot(_p20._0);
-					if (_p31.ctor === 'Just') {
-						if (_elm_lang$core$Set$isEmpty(_p31._0._1.people)) {
-							var groups$ = A2(_elm_lang$core$Dict$remove, _p31._0._0, model.groups);
+					var _p34 = index.byTimeslot(_p21._0);
+					if (_p34.ctor === 'Just') {
+						if (_elm_lang$core$Set$isEmpty(_p34._0._1.people)) {
+							var groups$ = A2(_elm_lang$core$Dict$remove, _p34._0._0, model.groups);
 							return A2(
 								_user$project$Util_ops['!!'],
 								A2(
@@ -11722,7 +11780,7 @@ var _user$project$TimePage$update = F2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							_elm_lang$core$Native_Utils.update(
 								model,
-								{hover: _p20._0}),
+								{hover: _p21._0}),
 							_elm_lang$core$Native_List.fromArray(
 								[])),
 						_user$project$TimePage$None);
@@ -11981,30 +12039,30 @@ var _user$project$Pages$updateGroup = F2(
 var _user$project$Pages$Group = function (a) {
 	return {ctor: 'Group', _0: a};
 };
-var _user$project$Pages$init = F2(
-	function (people, groups) {
-		var _p9 = A2(_user$project$GroupPage$init, people, groups);
-		var model = _p9._0;
-		var cmd = _p9._1;
-		return A2(
-			_elm_lang$core$Platform_Cmd_ops['!'],
-			{
-				page: _user$project$Pages$Group(model),
-				people: people,
-				groups: groups,
-				ctrlDown: false
-			},
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$GroupMsg, cmd)
-				]));
-	});
 var _user$project$Pages$Time = function (a) {
 	return {ctor: 'Time', _0: a};
 };
 var _user$project$Pages$Person = function (a) {
 	return {ctor: 'Person', _0: a};
 };
+var _user$project$Pages$init = F2(
+	function (people, groups) {
+		var _p9 = _user$project$PersonPage$init(people);
+		var model = _p9._0;
+		var cmd = _p9._1;
+		return A2(
+			_elm_lang$core$Platform_Cmd_ops['!'],
+			{
+				page: _user$project$Pages$Person(model),
+				people: people,
+				groups: groups,
+				ctrlDown: false
+			},
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$PersonMsg, cmd)
+				]));
+	});
 var _user$project$Pages$changePage = F2(
 	function (page, model) {
 		var _p10 = page;
@@ -12401,7 +12459,7 @@ var _user$project$Main$update = F2(
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
-			init: _user$project$Main$init('http://localhost:8080/data.json'),
+			init: _user$project$Main$init('./data.json'),
 			view: _user$project$Main$view,
 			update: _user$project$Main$update,
 			subscriptions: _user$project$Main$subscriptions

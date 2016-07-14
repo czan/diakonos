@@ -41,14 +41,14 @@ type alias Model =
 init : Person.Dict -> Group.Dict -> (Model, Cmd Msg)
 init people groups =
     let
-        -- (model, cmd) = PersonPage.init people
+        (model, cmd) = PersonPage.init people
         -- (model, cmd) = TimePage.init people groups
-        (model, cmd) = GroupPage.init people groups
-    in { page = Group model
+        -- (model, cmd) = GroupPage.init people groups
+    in { page = Person model
        , people = people
        , groups = groups
        , ctrlDown = False
-       } ! [ Cmd.map GroupMsg cmd ]
+       } ! [ Cmd.map PersonMsg cmd ]
 
 updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updatePerson msg model =

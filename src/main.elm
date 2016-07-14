@@ -31,7 +31,7 @@ type alias Model =
 main : Program Never
 main =
     App.program
-        { init = init "http://localhost:8080/data.json"
+        { init = init "./data.json"
         , view = view
         , update = update
         , subscriptions = subscriptions

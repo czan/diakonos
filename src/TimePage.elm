@@ -28,8 +28,8 @@ type alias Model =
 
 
 type Msg
-    = Add Timeslot Person.Id
-    | Create Group.Id Timeslot Person.Id
+    = Add Timeslot (Maybe Person.Id)
+    | Create Group.Id Timeslot (Maybe Person.Id)
     | Remove Person.Id
     | Delete Timeslot
     | Move Group.Id Timeslot
@@ -64,12 +64,19 @@ update msg model =
         create personId timeslot id = Create id timeslot personId
     in case msg of
            Add timeslot personId ->
-               if index.byTimeslot timeslot == Nothing then
-                   model ! [ Random.generate (create personId timeslot) idGenerator ] !! None
-               else
-                   let groups' = model.groups
-                               |> Dict.map (fixGroup timeslot personId)
-                   in { model | groups = groups' } ! [] !! SaveGroups groups'
+               case index.byTimeslot timeslot of
+                   Nothing ->
+                       model ! [ Random.generate (create personId timeslot) idGenerator ] !! None
+
+                   _ ->
+                       case personId of
+                           Nothing ->
+                               model ! [] !! SaveGroups model.groups
+
+                           Just id ->
+                               let groups' = model.groups
+                                           |> Dict.map (fixGroup timeslot id)
+                               in { model | groups = groups' } ! [] !! SaveGroups groups'
 
            Create id timeslot personId ->
                let group = { time = timeslot, people = Set.empty }
@@ -318,11 +325,11 @@ viewTimeslot hover people {leaders, members, weight, index} timeslot =
                          ]
            , A.title (String.join "\n" errors)
            , dropTarget True
-           , onDrop Person.idDrag (Add timeslot)
+           , onDrop Person.idDrag (Add timeslot << Just)
            -- , onDrop Group.idDrag (flip Move timeslot)
            , onMouseOver (Hover <| HoverTimeslot timeslot)
            , onMouseOut (Hover <| NoHover)
-           , onClick (Delete timeslot)
+           , onClick (if hasGroup then Delete timeslot else Add timeslot Nothing)
            ] (if Set.isEmpty groupPeople then
                   [ text (toString leaderCount ++ " / " ++ toString memberCount)
                   ]
