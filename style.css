@@ -133,7 +133,7 @@ html, body {
 }
 
 .time-page td.highlight {
-    outline: 5px solid #ff0;
+    outline: 7px solid #ff0;
 }
 
 .time-page .person-list .highlight {
@@ -169,6 +169,7 @@ html, body {
     text-align: center;
     height: 100%;
     width: 100%;
+    border-spacing: 7px;
 }
 
 .time-page .timetable td {

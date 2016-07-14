@@ -6,11 +6,13 @@ import Html.Events exposing (onMouseOver, onMouseOut, onClick)
 import Dict exposing (Dict)
 import Set exposing (Set)
 import Random
+import Validation exposing (validateGroup)
 import Data.Group as Group exposing (Group)
 import Data.Person as Person exposing (Person)
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..))
 import Util exposing ((!!), hex, idGenerator)
 import DragAndDrop exposing (draggable, dragData, dropTarget, onDrop)
+import String
 
 
 type HoverState
@@ -292,13 +294,29 @@ viewTimeslot hover people {leaders, members, weight, index} timeslot =
 
                           _ ->
                               False
+
+        groupErrors =
+            Maybe.map (validateGroup people << snd) (index.byTimeslot timeslot)
+
+        hasErrors =
+            groupErrors
+                  |> Maybe.map (Result.map (always ()))
+                  |> Maybe.withDefault (Ok ())
+                  |> Result.map (always False)
+                  |> Result.withDefault True
+
+        errors = case groupErrors of
+                     Just (Err errors) -> errors
+                     _ -> []
     in
         td [ A.style [ ("background-color", background)
                      , ("color", foreground)
                      ]
            , A.classList [ ("has-group", hasGroup)
                          , ("highlight", highlighted)
+                         , ("error", hasErrors)
                          ]
+           , A.title (String.join "\n" errors)
            , dropTarget True
            , onDrop Person.idDrag (Add timeslot)
            -- , onDrop Group.idDrag (flip Move timeslot)

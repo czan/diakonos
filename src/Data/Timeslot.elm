@@ -1,4 +1,4 @@
-module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, decode, encode)
+module Data.Timeslot exposing (Day(..), Time, Timeslot, days, times, all, table, decode, encode, toString)
 
 import Html exposing (..)
 import String
@@ -34,17 +34,22 @@ daytitle day =
                           Friday -> "fr")
               ]
         ]
+
+timeString : Int -> String
+timeString =
+    Basics.toString
+    >> String.padLeft 2 '0'
+    >> String.padRight 4 '0'
+
+toString : Timeslot -> String
+toString (day, time) =
+    Basics.toString day ++ "@" ++ timeString time
              
 timetitle : Time -> Html a
 timetitle time =
     td []
         [ strong []
-              [time
-              |> toString
-              |> String.padLeft 2 '0'
-              |> String.padRight 4 '0'
-              |> text
-              ]
+              [ text <| timeString time ]
         ]
 
 table : List (Attribute a) -> (Timeslot -> Html a) -> Html a
@@ -84,6 +89,6 @@ decode =
 encode : Timeslot -> E.Value
 encode (day, time) =
     E.object
-        [ ("day", E.string <| toString day)
+        [ ("day", E.string <| Basics.toString day)
         , ("time", E.int time)
         ]

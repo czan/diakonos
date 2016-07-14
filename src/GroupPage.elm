@@ -132,9 +132,7 @@ viewGroup hover index people (id, group) =
         members = people
                 |> Dict.filter (\id _ -> Set.member id group.people)
 
-        (day, time) = group.time
-
-        name = toString day ++ "@" ++ toString time
+        name = Timeslot.toString group.time
 
         highlighted = case hover of
                           HoverPerson hoverId ->
