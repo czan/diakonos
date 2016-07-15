@@ -1,4 +1,4 @@
-module Validation exposing (validate, groupErrors, validateGroup)
+module Validation exposing (validate, validateGroup, validatePersonInGroup)
 
 import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
@@ -6,42 +6,41 @@ import Dict
 import Set exposing (Set)
 
 
-groupErrors : List (Result (List String) a) -> Result (List String) (List a)
-groupErrors results =
-    let grouping acc result =
-            case (acc, result) of
-                (Ok value, Ok value') ->
-                    Ok (value :: value')
-                (Ok value, Err errs) ->
-                    Err errs
-                (Err errs, Ok value') ->
-                    Err errs
-                (Err errs, Err errs') ->
-                    Err (errs ++ errs')
-    in List.foldl grouping (Ok []) results
-
-
-validate : (a -> Bool) -> (a -> String) -> a -> Result (List String) a
+validate : (a -> Bool) -> (a -> String) -> a -> List String
 validate pred message value =
     if pred value then
-        Ok value
+        []
     else
-        Err [ message value ]
+        [ message value ]
 
 
-validateEnoughLeaders : List Person -> Result (List String) ()
+hasGender : Person.Gender -> Person -> Bool
+hasGender gender = ((==) gender << .gender)
+
+
+validateLeaderGenders : List Person -> List Person -> List String
+validateLeaderGenders members leaders =
+    let
+        validateMale = if List.any (hasGender Person.Male) members then
+                           [ validate (List.any (hasGender Person.Male))
+                                 (always "Must have at least one male leader") ]
+                       else
+                           []
+        validateFemale = if List.any (hasGender Person.Female) members then
+                           [ validate (List.any (hasGender Person.Female))
+                                 (always "Must have at least one female leader") ]
+                       else
+                           []
+        run validate = validate leaders
+    in List.concatMap run (validateMale ++ validateFemale)
+
+
+validateEnoughLeaders : List Person -> List String
 validateEnoughLeaders leaders =
-    let male = List.filter ((==) Person.Male << .gender) leaders
-        female = List.filter ((==) Person.Female << .gender) leaders
-    in
-        groupErrors [ validate (\x -> List.length x > 1) (always "Not enough leaders (minimum 2)") leaders
-                    , validate (not << List.isEmpty) (always "No male leaders") male
-                    , validate (not << List.isEmpty) (always "No female leaders") female
-                    ]
-            |> Result.map (always ())
+    validate (\x -> List.length x > 1) (always "Not enough leaders (minimum 2)") leaders
 
 
-validateGroup : Person.Dict -> Group -> Result (List String) Group
+validateGroup : Person.Dict -> Group -> List String
 validateGroup people group =
     let
         members =
@@ -54,8 +53,12 @@ validateGroup people group =
 
         validators =
             [ validateEnoughLeaders leaders
+            , validateLeaderGenders members leaders
             -- , validateLeaderFreeTimes leaders
             ]
     in
-        groupErrors validators
-            |> Result.map (always group)
+        List.concat validators
+
+validatePersonInGroup : Group -> Person -> List String
+validatePersonInGroup group =
+    validate (List.member group.time << .free) (flip (++) " is not free for this group" << .name)

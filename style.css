@@ -36,6 +36,17 @@ html, body {
 .person-label {
     padding: 5px;
     cursor: pointer;
+    height: 20px;
+}
+
+.person-label a.delete {
+    display: none;
+    float: right;
+    color: #f00;
+}
+
+.person-label:hover a.delete {
+    display: inline-block;
 }
 
 .person-label:hover {
@@ -88,12 +99,14 @@ html, body {
     background: #fff;
     height: 100%;
     width: 100%;
+    cursor: pointer;
 }
 
 .person-page .busy {
     background: #000;
     height: 100%;
     width: 100%;
+    cursor: pointer;
 }
 
 .person-page td {
@@ -157,6 +170,10 @@ html, body {
     text-decoration: underline;
 }
 
+.time-page .timetable .person.error {
+    color: #f00;
+}
+
 .time-page .timetable {
     display: inline-block;
     vertical-align: top;
@@ -175,7 +192,7 @@ html, body {
 .time-page .timetable td {
     width: 19%;
     margin: 5px;
-    overflow: auto;
+    cursor: pointer;
 }
 
 .time-page .timetable td:first-child {
@@ -224,9 +241,17 @@ html, body {
     text-align: center;
 }
 
+.group-page .person span {
+    cursor: pointer;
+}
+
 .group-page .asgl {
     font-style: italic;
     text-decoration: underline;
+}
+
+.group-page .group-list .person.error {
+    color: #f00;
 }
 
 .group-page > .person-list .highlight {

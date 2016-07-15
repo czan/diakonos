@@ -4,7 +4,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.App as App
-import Dict exposing (Dict)
 import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
 import Keyboard
@@ -25,7 +24,8 @@ type Msg = PersonMsg PersonPage.Msg
          | KeyDown Keyboard.KeyCode
          | KeyUp Keyboard.KeyCode
 
-type ParentMsg = None
+type ParentMsg = SaveData Person.Dict Group.Dict
+               | None
 
 type PageModel = Person PersonPage.Model
                | Time TimePage.Model
@@ -53,9 +53,8 @@ init people groups =
 updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updatePerson msg model =
     case msg of
-        PersonPage.SavePerson id person ->
-            let people' = Dict.insert id person model.people
-            in { model | people = people' } ! [] !! None
+        PersonPage.SavePeople people ->
+            { model | people = people } ! [] !! SaveData people model.groups
 
         PersonPage.None ->
             model ! [] !! None
@@ -64,8 +63,7 @@ updateTime : TimePage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updateTime msg model =
     case msg of
         TimePage.SaveGroups groups ->
-            let groups' = groups
-            in { model | groups = groups } ! [] !! None
+            { model | groups = groups } ! [] !! SaveData model.people groups
 
         TimePage.None ->
             model ! [] !! None
@@ -75,8 +73,7 @@ updateGroup : GroupPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updateGroup msg model =
     case msg of
         GroupPage.SaveGroups groups ->
-            let groups' = groups
-            in { model | groups = groups } ! [] !! None
+            { model | groups = groups } ! [] !! SaveData model.people groups
 
         GroupPage.None ->
             model ! [] !! None

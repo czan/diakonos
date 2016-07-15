@@ -1,4 +1,4 @@
-module Data.Group exposing (Group, Id, Dict, Index, decode, idDrag, makeIndex)
+module Data.Group exposing (Group, Id, Dict, Index, decode, encode, idDrag, makeIndex)
 
 import Data.Timeslot as Timeslot exposing (Timeslot)
 import Data.Person as Person
@@ -31,6 +31,18 @@ decode =
     Json.object2 Group
         ("time" := Timeslot.decode)
         ("people" := (Json.map Set.fromList <| Json.list Json.string))
+
+
+encode : Group -> E.Value
+encode {time, people} =
+    E.object
+        [ ("time", Timeslot.encode time)
+        , ("people", people
+               |> Set.toList
+               |> List.map E.string
+               |> E.list
+          )
+        ]
 
 
 idDrag : DragAndDrop.DragType Id

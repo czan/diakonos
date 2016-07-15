@@ -5,17 +5,15 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Data.Person as Person exposing (Person, Gender(..), Role(..))
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..), Time)
+import Util exposing ((!!))
 
 type Msg = UpdateName String
          | UpdateRole String
          | UpdateGender String
          | UpdateFree Timeslot Bool
-         | SaveForm
-         | RevertForm
 
 type ParentMsg = None
                | Save Person
-               | Revert
 
 type alias Model = Person
 
@@ -49,66 +47,50 @@ genderFromString input =
                  
 update : Msg -> Model -> (Model, Cmd a, ParentMsg)
 update msg person =
-    let parentMsg = case msg of
-                        SaveForm -> Save person
-                        RevertForm -> Revert
-                        _ -> None
-    in
-        ( simpleUpdate msg person
-        , Cmd.none
-        , parentMsg)
-
-simpleUpdate : Msg -> Model -> Model
-simpleUpdate msg person =
     case msg of
-        SaveForm ->
-            person
-
-        RevertForm ->
-            person
-
         UpdateName value ->
-            { person | name = value }
+            let person' = { person | name = value }
+            in person' ! [] !! Save person'
 
         UpdateRole input ->
             case roleFromString input of
                 Just role ->
-                    { person | role = role }
+                    let person' = { person | role = role }
+                    in person' ! [] !! Save person'
 
-                Nothing -> person
+                Nothing ->
+                    person ! [] !! None
 
         UpdateGender input ->
             case genderFromString input of
                 Just gender ->
-                    { person | gender = gender }
+                    let person' = { person | gender = gender }
+                    in person' ! [] !! Save person'
 
-                Nothing -> person
+                Nothing ->
+                    person ! [] !! None
 
         UpdateFree timeslot free ->
             if free then
                 if person `freeAt` timeslot then
-                    person
+                    person ! [] !! None
                 else 
-                    { person | free = timeslot :: person.free }
+                    let person' = { person | free = timeslot :: person.free }
+                    in person' ! [] !! Save person'
             else
-                { person | free = List.filter ((/=) timeslot) person.free }
+                let person' = { person | free = List.filter ((/=) timeslot) person.free }
+                in person' ! [] !! Save person'
+
 
 view : Model -> Html Msg
 view person =
-    Html.form [ onSubmit SaveForm ]
+    Html.div [ ]
         [ viewName person
         , viewRole person
         , viewGender person
         , viewFree person
-        , viewButtons
         ]
 
-viewButtons : Html Msg
-viewButtons =
-    div []
-        [ input [ type' "submit", value "Save" ] []
-        , button [ onClick RevertForm ] [ text "Revert" ]
-        ]
 
 viewName : Person -> Html Msg
 viewName person =

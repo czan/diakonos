@@ -5,8 +5,21 @@ import String
 import Random
 
 
+(?) : Maybe a -> a -> a
+(?) = flip Maybe.withDefault
+
+
 (!!) : (a, b) -> c -> (a, b, c)
 (!!) (a, b) c = (a, b, c)
+
+
+isJust : Maybe a -> Bool
+isJust value =
+    case value of
+        Just _ ->
+            True
+        _ ->
+            False
 
 
 takeWhile : (a -> Bool) -> List a -> List a

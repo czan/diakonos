@@ -22,11 +22,12 @@ type alias Model =
 type Msg = Select (Maybe Person.Id)
          | Add Person
          | Save Person.Id Person
+         | Delete Person.Id
          | FormMsg PersonForm.Msg
          | KeyUp Keyboard.KeyCode
          | KeyDown Keyboard.KeyCode
 
-type ParentMsg = SavePerson Person.Id Person
+type ParentMsg = SavePeople Person.Dict
                | None
 
 init : Dict String Person -> ( Model, Cmd Msg )
@@ -93,11 +94,15 @@ update msg model =
             model ! [ Random.generate (flip Save person) idGenerator ] !! None
 
         Save id person ->
-            updateSelection (Just id) { model | people = Dict.insert id person model.people } !! SavePerson id person
-            -- { model
-            --     | selected = Just id
-            --     , people = Dict.insert id person model.people
-            -- } ! [] !! SavePerson id person
+            let people = Dict.insert id person model.people
+                model = { model | people = people }
+            in updateSelection (Just id) model !! SavePeople people
+
+        Delete id ->
+            let people = Dict.remove id model.people
+                model' = { model | people = people }
+            in updateSelection Nothing model' !! SavePeople people
+
 
 updateSelection : Maybe Person.Id -> Model -> (Model, Cmd a)
 updateSelection mid model =
@@ -112,6 +117,7 @@ updateSelection mid model =
                 Nothing -> model ! []
         Nothing ->
             { model | selected = Nothing, form = PersonForm.init Nothing } ! [ scrollToVisible "new-person" ]
+
 
 updateKeyup : Keyboard.KeyCode -> Model -> Model
 updateKeyup key model =
@@ -137,17 +143,6 @@ updateFromForm msg model =
 
                 Nothing ->
                     update (Add person) model
-
-        PersonForm.Revert ->
-            case model.selected of
-                Just id ->
-                    case Dict.get id model.people of
-                        Just person ->
-                            { model | form = PersonForm.init (Just person) } ! [] !! None
-
-                        Nothing -> model ! [] !! None
-
-                Nothing -> model ! [] !! None
 
         PersonForm.None -> model ! [] !! None
 
@@ -182,7 +177,11 @@ viewList model =
                                  , classList [ ("person-label", True)
                                              , ("selected", selected (Just pid))]
                                  , id ("person-" ++ pid)
-                                 ] [text person.name]
+                                 ] [ text person.name
+                                   , a [ class "delete"
+                                       , onClick <| Delete pid
+                                       ] [ text "[ Delete ]" ]
+                                   ]
         asglList = people model
                  |> List.filter (snd >> .role >> (==) Person.Asgl)
                  |> List.map item

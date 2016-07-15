@@ -10,7 +10,7 @@ import Data.Person as Person exposing (Person)
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..))
 import Util exposing ((!!), hex, idGenerator)
 import DragAndDrop exposing (draggable, dragData, dropTarget, onDrop)
-import Validation exposing (validateGroup)
+import Validation exposing (validateGroup, validatePersonInGroup)
 import String
 
 
@@ -127,6 +127,32 @@ viewPeople hover index title people =
                |> List.sortBy (.name << snd)
                |> List.map (viewPerson hover index)))
 
+viewGroupPerson : HoverState -> Group -> (Person.Id, Person) -> Html Msg
+viewGroupPerson hover group (id, person) =
+    let highlighted = case hover of
+                          HoverGroup timeslot ->
+                              person.free
+                                  |> List.any ((==) timeslot)
+                          _ ->
+                              False
+        errors = validatePersonInGroup group person
+    in div [ A.classList [ ("person", True)
+                         , ("asgl", person.role == Person.Asgl)
+                         , ("highlight", highlighted)
+                         , ("error", not <| List.isEmpty errors)
+                         ]
+           , onMouseOver (Hover <| HoverPerson id)
+           , onMouseOut (Hover <| NoHover)
+           ] [ span (List.concat [ [ draggable True
+                                   , dragData Person.idDrag id
+                                   ]
+                                 , if List.isEmpty errors then
+                                       []
+                                   else
+                                       [ A.title (String.join "\n" errors) ]
+                                 ])
+                   [ text person.name ] ]
+
 
 viewGroup : HoverState -> Group.Index -> Person.Dict -> (Group.Id, Group) -> Html Msg
 viewGroup hover index people (id, group) =
@@ -145,12 +171,11 @@ viewGroup hover index people (id, group) =
                           _ ->
                               False
 
-        groupErrors = validateGroup people group
+        errors =
+            validateGroup people group
 
-        (hasErrors, errors) =
-            case groupErrors of
-                Err errors -> (True, errors)
-                _ -> (False, [])
+        hasErrors =
+            not <| List.isEmpty errors
     in
         div [ A.classList [ ("group", True)
                           , ("highlight", highlighted)
@@ -164,7 +189,7 @@ viewGroup hover index people (id, group) =
             ] (h1 [] [ text name ] ::
                    (Dict.toList members
                    |> List.sortWith (\a b -> asglFirst (snd a) (snd b))
-                   |> List.map (viewPerson hover { index | byPerson = always Nothing })))
+                   |> List.map (viewGroupPerson hover group)))
 
 
 compareGroups : (Group.Id, Group) -> (Group.Id, Group) -> Order
@@ -212,77 +237,6 @@ asglFirst left right =
 
         (_, _) ->
             compare left.name right.name
-
-
--- viewGroup : HoverState -> Person.Dict -> Group -> Html Msg
--- viewGroup hover people group =
---     let
---         fullPeople =
---             List.filterMap (flip Dict.get people) group.people
-
---         name = (toString <| fst group) ++ "@" ++ (toString <| snd group)
---     in
---         div []
-        
-
-
--- viewTimeslot : HoverState -> Person.Dict -> TimeslotFunctions -> Timeslot -> Html Msg
--- viewTimeslot hover people {leaders, members, weight, index} timeslot =
---     let
---         leaderCount =
---             leaders timeslot |> List.length
---         memberCount =
---             members timeslot |> List.length
---         background =
---             if leaderCount < 2 then
---                 "#000"
---             else
---                 weight timeslot |> valueToBackgroundColor
---         foreground =
---             if leaderCount < 2 then
---                 "#000"
---             else
---                 weight timeslot |> valueToTextColor
---         lookupPerson id =
---             case Dict.get id people of
---                 Just person ->
---                     [(id, person)]
---                 Nothing ->
---                     []
-
---         mGroup = index.byTimeslot timeslot
-
---         groupPeople = Maybe.withDefault Set.empty <| Maybe.map (.people << snd) mGroup
-
---         hasGroup = mGroup /= Nothing
-
---         highlighted = case hover of
---                           HoverPerson id ->
---                               Dict.get id people
---                                   |> Maybe.map (flip freeAt timeslot)
---                                   |> Maybe.withDefault False
-
---                           _ ->
---                               False
---     in
---         td [ A.style [ ("background-color", background)
---                      , ("color", foreground)
---                      ]
---            , A.classList [ ("has-group", hasGroup)
---                          , ("highlight", highlighted)
---                          ]
---            , dropTarget True
---            , onDrop Person.idDrag (Add timeslot)
---            -- , onDrop Group.idDrag (flip Move timeslot)
---            ] (if Set.isEmpty groupPeople then
---                   [ text (toString leaderCount ++ " / " ++ toString memberCount)
---                   ]
---               else
---                   (groupPeople
---                   |> Set.toList
---                   |> List.concatMap lookupPerson
---                   |> List.sortWith (sortSecond asglFirst)
---                   |> List.map (viewPerson hover { index | byPerson = always Nothing })))
 
 
 subscriptions : Model -> Sub Msg
