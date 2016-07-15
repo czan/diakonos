@@ -31,23 +31,29 @@ type PageModel = Person PersonPage.Model
                | Time TimePage.Model
                | Group GroupPage.Model
 
+type alias PersistedModels =
+    { person : Maybe PersonPage.PersistentModel
+    }
+
 type alias Model =
     { page : PageModel
     , people : Person.Dict
     , groups : Group.Dict
     , ctrlDown : Bool
+    , persistedModels : PersistedModels
     }
 
 init : Person.Dict -> Group.Dict -> (Model, Cmd Msg)
 init people groups =
     let
-        (model, cmd) = PersonPage.init people
+        (model, cmd) = PersonPage.init Nothing people
         -- (model, cmd) = TimePage.init people groups
         -- (model, cmd) = GroupPage.init people groups
     in { page = Person model
        , people = people
        , groups = groups
        , ctrlDown = False
+       , persistedModels = { person = Nothing }
        } ! [ Cmd.map PersonMsg cmd ]
 
 updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
@@ -107,20 +113,34 @@ changePageRight model =
         Time _ -> changePage Groups model
         Group _ -> changePage People model
 
+persist : PageModel -> PersistedModels -> PersistedModels
+persist model persisted =
+    case model of
+        Person model ->
+            { persisted | person = Just (PersonPage.persist model) }
+
+        _ ->
+            persisted
+            
+
 changePage : PageName -> Model -> (Model, Cmd Msg)
 changePage page model =
-    case page of
+    let persisted = persist model.page model.persistedModels
+    in case page of
         People ->
-            let (pmodel, pcmd) = PersonPage.init model.people
-            in { model | page = Person pmodel } ! [ Cmd.map PersonMsg pcmd ]
+            let (pmodel, pcmd) = PersonPage.init model.persistedModels.person model.people
+                model' = { model | page = Person pmodel, persistedModels = persisted }
+            in model' ! [ Cmd.map PersonMsg pcmd ]
 
         Times ->
             let (pmodel, pcmd) = TimePage.init model.people model.groups
-            in { model | page = Time pmodel } ! [ Cmd.map TimeMsg pcmd ]
+                model' = { model | page = Time pmodel, persistedModels = persisted }
+            in model' ! [ Cmd.map TimeMsg pcmd ]
 
         Groups ->
             let (pmodel, pcmd) = GroupPage.init model.people model.groups
-            in { model | page = Group pmodel } ! [ Cmd.map GroupMsg pcmd ]
+                model' = { model | page = Group pmodel, persistedModels = persisted }
+            in model' ! [ Cmd.map GroupMsg pcmd ]
                      
 update : Msg -> Model -> (Model, Cmd Msg, ParentMsg)
 update msg model =

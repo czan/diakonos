@@ -2,8 +2,10 @@ module Validation exposing (validate, validateGroup, validatePersonInGroup)
 
 import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
+import Data.Timeslot as Timeslot exposing (Timeslot)
 import Dict
 import Set exposing (Set)
+import Util exposing (intersect)
 
 
 validate : (a -> Bool) -> (a -> String) -> a -> List String
@@ -40,6 +42,21 @@ validateEnoughLeaders leaders =
     validate (\x -> List.length x > 1) (always "Not enough leaders (minimum 2)") leaders
 
 
+validateLeaderFreeTimes : Timeslot -> List Person -> List String
+validateLeaderFreeTimes timeslot leaders =
+    let
+        removeTimeslot =
+            List.filter ((/=) timeslot)
+        haveCommonFreeTime leaders =
+            leaders
+                |> List.map (removeTimeslot << .free)
+                |> intersect
+                |> List.isEmpty
+                |> not
+    in
+        validate haveCommonFreeTime (always "Leaders do not have another common free time") leaders
+
+
 validateGroup : Person.Dict -> Group -> List String
 validateGroup people group =
     let
@@ -54,7 +71,7 @@ validateGroup people group =
         validators =
             [ validateEnoughLeaders leaders
             , validateLeaderGenders members leaders
-            -- , validateLeaderFreeTimes leaders
+            , validateLeaderFreeTimes group.time leaders
             ]
     in
         List.concat validators

@@ -48,6 +48,21 @@ dropWhile f list =
                 xs
 
 
+intersectHelp : List a -> List a -> List a
+intersectHelp left right =
+    List.filter (flip List.member right) left
+
+
+intersect : List (List a) -> List a
+intersect lists =
+    case lists of
+        [] ->
+            []
+
+        first :: rest ->
+            List.foldl intersectHelp first rest
+
+
 hexChar : Int -> Char
 hexChar input =
     let

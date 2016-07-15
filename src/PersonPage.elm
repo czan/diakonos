@@ -1,4 +1,4 @@
-module PersonPage exposing (Model, Msg, ParentMsg(..), init, update, view, subscriptions)
+module PersonPage exposing (Model, Msg, PersistentModel, ParentMsg(..), persist, init, update, view, subscriptions)
 
 import Html exposing (..)
 import Html.App as App
@@ -19,6 +19,10 @@ type alias Model =
     , altDown : Bool
     }
 
+type alias PersistentModel =
+    { selected : Maybe Person.Id
+    }
+
 type Msg = Select (Maybe Person.Id)
          | Add Person
          | Save Person.Id Person
@@ -30,14 +34,24 @@ type Msg = Select (Maybe Person.Id)
 type ParentMsg = SavePeople Person.Dict
                | None
 
-init : Dict String Person -> ( Model, Cmd Msg )
-init people =
-    ( { people = people
-      , selected = Nothing
-      , form = PersonForm.init Nothing
-      , altDown = False
-      }
-    , Cmd.none )
+persist : Model -> PersistentModel
+persist model =
+    { selected = model.selected }
+
+init : Maybe PersistentModel -> Dict String Person -> ( Model, Cmd Msg )
+init pmodel people =
+    let
+        checkValid people id = if Dict.member id people then
+                                   Just id
+                               else
+                                   Nothing
+        selected = pmodel `Maybe.andThen` .selected `Maybe.andThen` (checkValid people)
+        model = { people = people
+                , selected = Nothing
+                , form = PersonForm.init Nothing
+                , altDown = False
+                }
+    in updateSelection selected model
 
 moveSelectionDown : Model -> (Model, Cmd a)
 moveSelectionDown model =
