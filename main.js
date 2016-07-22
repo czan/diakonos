@@ -9667,33 +9667,41 @@ var _user$project$GroupPage$viewPerson = F3(
 			A2(_elm_lang$core$List$map, index.byTimeslot, _p9.free));
 		return A2(
 			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$classList(
-					_elm_lang$core$Native_List.fromArray(
-						[
-							{ctor: '_Tuple2', _0: 'person', _1: true},
-							{
-							ctor: '_Tuple2',
-							_0: 'in-group',
-							_1: !_elm_lang$core$Native_Utils.eq(
-								index.byPerson(_p8),
-								_elm_lang$core$Maybe$Nothing)
-						},
-							{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
-							{
-							ctor: '_Tuple2',
-							_0: 'leader',
-							_1: _elm_lang$core$Native_Utils.eq(_p9.role, _user$project$Data_Person$Leader)
-						},
-							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
-						])),
-					_elm_lang$html$Html_Events$onMouseOver(
-					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverPerson(_p8))),
-					_elm_lang$html$Html_Events$onMouseOut(
-					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
-				]),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$classList(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'person', _1: true},
+								{
+								ctor: '_Tuple2',
+								_0: 'in-group',
+								_1: !_elm_lang$core$Native_Utils.eq(
+									index.byPerson(_p8),
+									_elm_lang$core$Maybe$Nothing)
+							},
+								{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
+								{
+								ctor: '_Tuple2',
+								_0: 'leader',
+								_1: _elm_lang$core$Native_Utils.eq(_p9.role, _user$project$Data_Person$Leader)
+							},
+								{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
+							])),
+						_elm_lang$html$Html_Events$onMouseOver(
+						_user$project$GroupPage$Hover(
+							_user$project$GroupPage$HoverPerson(_p8))),
+						_elm_lang$html$Html_Events$onMouseOut(
+						_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
+					]),
+				noMatchingGroups ? _elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$title(
+						A2(_elm_lang$core$Basics_ops['++'], _p9.name, ' is not free for any groups'))
+					]) : _elm_lang$core$Native_List.fromArray(
+					[])),
 			_elm_lang$core$Native_List.fromArray(
 				[
 					A2(
@@ -11166,33 +11174,41 @@ var _user$project$TimePage$viewPerson = F3(
 			A2(_elm_lang$core$List$map, index.byTimeslot, _p11.free));
 		return A2(
 			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$classList(
-					_elm_lang$core$Native_List.fromArray(
-						[
-							{ctor: '_Tuple2', _0: 'person', _1: true},
-							{
-							ctor: '_Tuple2',
-							_0: 'in-group',
-							_1: !_elm_lang$core$Native_Utils.eq(
-								index.byPerson(_p10),
-								_elm_lang$core$Maybe$Nothing)
-						},
-							{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
-							{
-							ctor: '_Tuple2',
-							_0: 'leader',
-							_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Leader)
-						},
-							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
-						])),
-					_elm_lang$html$Html_Events$onMouseOver(
-					_user$project$TimePage$Hover(
-						_user$project$TimePage$HoverPerson(_p10))),
-					_elm_lang$html$Html_Events$onMouseOut(
-					_user$project$TimePage$Hover(_user$project$TimePage$NoHover))
-				]),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$classList(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'person', _1: true},
+								{
+								ctor: '_Tuple2',
+								_0: 'in-group',
+								_1: !_elm_lang$core$Native_Utils.eq(
+									index.byPerson(_p10),
+									_elm_lang$core$Maybe$Nothing)
+							},
+								{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
+								{
+								ctor: '_Tuple2',
+								_0: 'leader',
+								_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Leader)
+							},
+								{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
+							])),
+						_elm_lang$html$Html_Events$onMouseOver(
+						_user$project$TimePage$Hover(
+							_user$project$TimePage$HoverPerson(_p10))),
+						_elm_lang$html$Html_Events$onMouseOut(
+						_user$project$TimePage$Hover(_user$project$TimePage$NoHover))
+					]),
+				noMatchingGroups ? _elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$title(
+						A2(_elm_lang$core$Basics_ops['++'], _p11.name, ' is not free for any groups'))
+					]) : _elm_lang$core$Native_List.fromArray(
+					[])),
 			_elm_lang$core$Native_List.fromArray(
 				[
 					A2(

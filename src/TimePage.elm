@@ -171,18 +171,22 @@ viewPerson hover index (id, person) =
                                   |> List.any ((==) timeslot)
                           _ ->
                               False
-    in div [ A.classList [ ("person", True)
-                         , ("in-group", index.byPerson id /= Nothing)
-                         , ("no-group", noMatchingGroups)
-                         , ("leader", person.role == Person.Leader)
-                         , ("highlight", highlighted)
-                         ]
-           , onMouseOver (Hover <| HoverPerson id)
-           , onMouseOut (Hover <| NoHover)
-           ] [ span [ draggable True
-                    , dragData Person.idDrag id
-                    ]
-                   [ text person.name ] ]
+    in div ([ A.classList [ ("person", True)
+                          , ("in-group", index.byPerson id /= Nothing)
+                          , ("no-group", noMatchingGroups)
+                          , ("leader", person.role == Person.Leader)
+                          , ("highlight", highlighted)
+                          ]
+            , onMouseOver (Hover <| HoverPerson id)
+            , onMouseOut (Hover <| NoHover)
+            ] ++ if noMatchingGroups then
+                     [ A.title (person.name ++ " is not free for any groups") ]
+                 else
+                     [])
+        [ span [ draggable True
+               , dragData Person.idDrag id
+               ]
+              [ text person.name ] ]
 
 
 viewPeople : HoverState -> Group.Index -> String -> Dict Person.Id Person -> Html Msg
