@@ -57,10 +57,6 @@ var handlePorts = function(app) {
     document.body.removeChild(a);
   }));
 
-  setTimeout(function() {
-    app.ports.loadedData.send({people: {"abc": {name: "Carlo", gender: "male", role: "leader", free: []}}, groups: {}});
-  }, 1000);
-
   app.ports.load.subscribe(printErrors(function() {
     var input = document.createElement('input');
     input.type = 'file';
