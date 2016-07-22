@@ -8824,364 +8824,6 @@ var _elm_lang$keyboard$Keyboard$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
 
-//import Dict, List, Maybe, Native.Scheduler //
-
-var _evancz$elm_http$Native_Http = function() {
-
-function send(settings, request)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-		var req = new XMLHttpRequest();
-
-		// start
-		if (settings.onStart.ctor === 'Just')
-		{
-			req.addEventListener('loadStart', function() {
-				var task = settings.onStart._0;
-				_elm_lang$core$Native_Scheduler.rawSpawn(task);
-			});
-		}
-
-		// progress
-		if (settings.onProgress.ctor === 'Just')
-		{
-			req.addEventListener('progress', function(event) {
-				var progress = !event.lengthComputable
-					? _elm_lang$core$Maybe$Nothing
-					: _elm_lang$core$Maybe$Just({
-						loaded: event.loaded,
-						total: event.total
-					});
-				var task = settings.onProgress._0(progress);
-				_elm_lang$core$Native_Scheduler.rawSpawn(task);
-			});
-		}
-
-		// end
-		req.addEventListener('error', function() {
-			return callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'RawNetworkError' }));
-		});
-
-		req.addEventListener('timeout', function() {
-			return callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'RawTimeout' }));
-		});
-
-		req.addEventListener('load', function() {
-			return callback(_elm_lang$core$Native_Scheduler.succeed(toResponse(req)));
-		});
-
-		req.open(request.verb, request.url, true);
-
-		// set all the headers
-		function setHeader(pair) {
-			req.setRequestHeader(pair._0, pair._1);
-		}
-		A2(_elm_lang$core$List$map, setHeader, request.headers);
-
-		// set the timeout
-		req.timeout = settings.timeout;
-
-		// enable this withCredentials thing
-		req.withCredentials = settings.withCredentials;
-
-		// ask for a specific MIME type for the response
-		if (settings.desiredResponseType.ctor === 'Just')
-		{
-			req.overrideMimeType(settings.desiredResponseType._0);
-		}
-
-		// actuall send the request
-		if(request.body.ctor === "BodyFormData")
-		{
-			req.send(request.body.formData)
-		}
-		else
-		{
-			req.send(request.body._0);
-		}
-
-		return function() {
-			req.abort();
-		};
-	});
-}
-
-
-// deal with responses
-
-function toResponse(req)
-{
-	var tag = req.responseType === 'blob' ? 'Blob' : 'Text'
-	var response = tag === 'Blob' ? req.response : req.responseText;
-	return {
-		status: req.status,
-		statusText: req.statusText,
-		headers: parseHeaders(req.getAllResponseHeaders()),
-		url: req.responseURL,
-		value: { ctor: tag, _0: response }
-	};
-}
-
-
-function parseHeaders(rawHeaders)
-{
-	var headers = _elm_lang$core$Dict$empty;
-
-	if (!rawHeaders)
-	{
-		return headers;
-	}
-
-	var headerPairs = rawHeaders.split('\u000d\u000a');
-	for (var i = headerPairs.length; i--; )
-	{
-		var headerPair = headerPairs[i];
-		var index = headerPair.indexOf('\u003a\u0020');
-		if (index > 0)
-		{
-			var key = headerPair.substring(0, index);
-			var value = headerPair.substring(index + 2);
-
-			headers = A3(_elm_lang$core$Dict$update, key, function(oldValue) {
-				if (oldValue.ctor === 'Just')
-				{
-					return _elm_lang$core$Maybe$Just(value + ', ' + oldValue._0);
-				}
-				return _elm_lang$core$Maybe$Just(value);
-			}, headers);
-		}
-	}
-
-	return headers;
-}
-
-
-function multipart(dataList)
-{
-	var formData = new FormData();
-
-	while (dataList.ctor !== '[]')
-	{
-		var data = dataList._0;
-		if (data.ctor === 'StringData')
-		{
-			formData.append(data._0, data._1);
-		}
-		else
-		{
-			var fileName = data._1.ctor === 'Nothing'
-				? undefined
-				: data._1._0;
-			formData.append(data._0, data._2, fileName);
-		}
-		dataList = dataList._1;
-	}
-
-	return { ctor: 'BodyFormData', formData: formData };
-}
-
-
-function uriEncode(string)
-{
-	return encodeURIComponent(string);
-}
-
-function uriDecode(string)
-{
-	return decodeURIComponent(string);
-}
-
-return {
-	send: F2(send),
-	multipart: multipart,
-	uriEncode: uriEncode,
-	uriDecode: uriDecode
-};
-
-}();
-
-var _evancz$elm_http$Http$send = _evancz$elm_http$Native_Http.send;
-var _evancz$elm_http$Http$defaultSettings = {timeout: 0, onStart: _elm_lang$core$Maybe$Nothing, onProgress: _elm_lang$core$Maybe$Nothing, desiredResponseType: _elm_lang$core$Maybe$Nothing, withCredentials: false};
-var _evancz$elm_http$Http$multipart = _evancz$elm_http$Native_Http.multipart;
-var _evancz$elm_http$Http$uriDecode = _evancz$elm_http$Native_Http.uriDecode;
-var _evancz$elm_http$Http$uriEncode = _evancz$elm_http$Native_Http.uriEncode;
-var _evancz$elm_http$Http$queryEscape = function (string) {
-	return A2(
-		_elm_lang$core$String$join,
-		'+',
-		A2(
-			_elm_lang$core$String$split,
-			'%20',
-			_evancz$elm_http$Http$uriEncode(string)));
-};
-var _evancz$elm_http$Http$queryPair = function (_p0) {
-	var _p1 = _p0;
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		_evancz$elm_http$Http$queryEscape(_p1._0),
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			'=',
-			_evancz$elm_http$Http$queryEscape(_p1._1)));
-};
-var _evancz$elm_http$Http$url = F2(
-	function (baseUrl, args) {
-		var _p2 = args;
-		if (_p2.ctor === '[]') {
-			return baseUrl;
-		} else {
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				baseUrl,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'?',
-					A2(
-						_elm_lang$core$String$join,
-						'&',
-						A2(_elm_lang$core$List$map, _evancz$elm_http$Http$queryPair, args))));
-		}
-	});
-var _evancz$elm_http$Http$Request = F4(
-	function (a, b, c, d) {
-		return {verb: a, headers: b, url: c, body: d};
-	});
-var _evancz$elm_http$Http$Settings = F5(
-	function (a, b, c, d, e) {
-		return {timeout: a, onStart: b, onProgress: c, desiredResponseType: d, withCredentials: e};
-	});
-var _evancz$elm_http$Http$Response = F5(
-	function (a, b, c, d, e) {
-		return {status: a, statusText: b, headers: c, url: d, value: e};
-	});
-var _evancz$elm_http$Http$TODO_implement_blob_in_another_library = {ctor: 'TODO_implement_blob_in_another_library'};
-var _evancz$elm_http$Http$TODO_implement_file_in_another_library = {ctor: 'TODO_implement_file_in_another_library'};
-var _evancz$elm_http$Http$BodyBlob = function (a) {
-	return {ctor: 'BodyBlob', _0: a};
-};
-var _evancz$elm_http$Http$BodyFormData = {ctor: 'BodyFormData'};
-var _evancz$elm_http$Http$ArrayBuffer = {ctor: 'ArrayBuffer'};
-var _evancz$elm_http$Http$BodyString = function (a) {
-	return {ctor: 'BodyString', _0: a};
-};
-var _evancz$elm_http$Http$string = _evancz$elm_http$Http$BodyString;
-var _evancz$elm_http$Http$Empty = {ctor: 'Empty'};
-var _evancz$elm_http$Http$empty = _evancz$elm_http$Http$Empty;
-var _evancz$elm_http$Http$FileData = F3(
-	function (a, b, c) {
-		return {ctor: 'FileData', _0: a, _1: b, _2: c};
-	});
-var _evancz$elm_http$Http$BlobData = F3(
-	function (a, b, c) {
-		return {ctor: 'BlobData', _0: a, _1: b, _2: c};
-	});
-var _evancz$elm_http$Http$blobData = _evancz$elm_http$Http$BlobData;
-var _evancz$elm_http$Http$StringData = F2(
-	function (a, b) {
-		return {ctor: 'StringData', _0: a, _1: b};
-	});
-var _evancz$elm_http$Http$stringData = _evancz$elm_http$Http$StringData;
-var _evancz$elm_http$Http$Blob = function (a) {
-	return {ctor: 'Blob', _0: a};
-};
-var _evancz$elm_http$Http$Text = function (a) {
-	return {ctor: 'Text', _0: a};
-};
-var _evancz$elm_http$Http$RawNetworkError = {ctor: 'RawNetworkError'};
-var _evancz$elm_http$Http$RawTimeout = {ctor: 'RawTimeout'};
-var _evancz$elm_http$Http$BadResponse = F2(
-	function (a, b) {
-		return {ctor: 'BadResponse', _0: a, _1: b};
-	});
-var _evancz$elm_http$Http$UnexpectedPayload = function (a) {
-	return {ctor: 'UnexpectedPayload', _0: a};
-};
-var _evancz$elm_http$Http$handleResponse = F2(
-	function (handle, response) {
-		if ((_elm_lang$core$Native_Utils.cmp(200, response.status) < 1) && (_elm_lang$core$Native_Utils.cmp(response.status, 300) < 0)) {
-			var _p3 = response.value;
-			if (_p3.ctor === 'Text') {
-				return handle(_p3._0);
-			} else {
-				return _elm_lang$core$Task$fail(
-					_evancz$elm_http$Http$UnexpectedPayload('Response body is a blob, expecting a string.'));
-			}
-		} else {
-			return _elm_lang$core$Task$fail(
-				A2(_evancz$elm_http$Http$BadResponse, response.status, response.statusText));
-		}
-	});
-var _evancz$elm_http$Http$NetworkError = {ctor: 'NetworkError'};
-var _evancz$elm_http$Http$Timeout = {ctor: 'Timeout'};
-var _evancz$elm_http$Http$promoteError = function (rawError) {
-	var _p4 = rawError;
-	if (_p4.ctor === 'RawTimeout') {
-		return _evancz$elm_http$Http$Timeout;
-	} else {
-		return _evancz$elm_http$Http$NetworkError;
-	}
-};
-var _evancz$elm_http$Http$getString = function (url) {
-	var request = {
-		verb: 'GET',
-		headers: _elm_lang$core$Native_List.fromArray(
-			[]),
-		url: url,
-		body: _evancz$elm_http$Http$empty
-	};
-	return A2(
-		_elm_lang$core$Task$andThen,
-		A2(
-			_elm_lang$core$Task$mapError,
-			_evancz$elm_http$Http$promoteError,
-			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request)),
-		_evancz$elm_http$Http$handleResponse(_elm_lang$core$Task$succeed));
-};
-var _evancz$elm_http$Http$fromJson = F2(
-	function (decoder, response) {
-		var decode = function (str) {
-			var _p5 = A2(_elm_lang$core$Json_Decode$decodeString, decoder, str);
-			if (_p5.ctor === 'Ok') {
-				return _elm_lang$core$Task$succeed(_p5._0);
-			} else {
-				return _elm_lang$core$Task$fail(
-					_evancz$elm_http$Http$UnexpectedPayload(_p5._0));
-			}
-		};
-		return A2(
-			_elm_lang$core$Task$andThen,
-			A2(_elm_lang$core$Task$mapError, _evancz$elm_http$Http$promoteError, response),
-			_evancz$elm_http$Http$handleResponse(decode));
-	});
-var _evancz$elm_http$Http$get = F2(
-	function (decoder, url) {
-		var request = {
-			verb: 'GET',
-			headers: _elm_lang$core$Native_List.fromArray(
-				[]),
-			url: url,
-			body: _evancz$elm_http$Http$empty
-		};
-		return A2(
-			_evancz$elm_http$Http$fromJson,
-			decoder,
-			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
-	});
-var _evancz$elm_http$Http$post = F3(
-	function (decoder, url, body) {
-		var request = {
-			verb: 'POST',
-			headers: _elm_lang$core$Native_List.fromArray(
-				[]),
-			url: url,
-			body: body
-		};
-		return A2(
-			_evancz$elm_http$Http$fromJson,
-			decoder,
-			A2(_evancz$elm_http$Http$send, _evancz$elm_http$Http$defaultSettings, request));
-	});
-
 var _user$project$Data_Timeslot$dayIndex = function (day) {
 	var _p0 = day;
 	switch (_p0.ctor) {
@@ -9525,22 +9167,19 @@ var _user$project$Data_Person$Person = F4(
 		return {name: a, role: b, gender: c, free: d};
 	});
 var _user$project$Data_Person$Member = {ctor: 'Member'};
-var _user$project$Data_Person$Asgl = {ctor: 'Asgl'};
-var _user$project$Data_Person$Howie = {ctor: 'Howie'};
+var _user$project$Data_Person$Leader = {ctor: 'Leader'};
 var _user$project$Data_Person$roles = _elm_lang$core$Native_List.fromArray(
-	[_user$project$Data_Person$Howie, _user$project$Data_Person$Asgl, _user$project$Data_Person$Member]);
+	[_user$project$Data_Person$Leader, _user$project$Data_Person$Member]);
 var _user$project$Data_Person$decodeRole = A2(
 	_elm_lang$core$Json_Decode$andThen,
 	_elm_lang$core$Json_Decode$string,
 	function (x) {
 		var _p2 = _elm_lang$core$String$toLower(x);
 		switch (_p2) {
-			case 'asgl':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$Data_Person$Asgl);
+			case 'leader':
+				return _elm_lang$core$Json_Decode$succeed(_user$project$Data_Person$Leader);
 			case 'member':
 				return _elm_lang$core$Json_Decode$succeed(_user$project$Data_Person$Member);
-			case 'howie':
-				return _elm_lang$core$Json_Decode$succeed(_user$project$Data_Person$Howie);
 			default:
 				return _elm_lang$core$Json_Decode$fail('Invalid role');
 		}
@@ -9829,30 +9468,37 @@ var _user$project$Validation$validateEnoughLeaders = function (leaders) {
 };
 var _user$project$Validation$validateLeaderFreeTimes = F2(
 	function (timeslot, leaders) {
-		var removeTimeslot = _elm_lang$core$List$filter(
-			F2(
-				function (x, y) {
-					return !_elm_lang$core$Native_Utils.eq(x, y);
-				})(timeslot));
-		var haveCommonFreeTime = function (leaders) {
-			return _elm_lang$core$Basics$not(
-				_elm_lang$core$List$isEmpty(
-					_user$project$Util$intersect(
-						A2(
-							_elm_lang$core$List$map,
-							function (_p1) {
-								return removeTimeslot(
-									function (_) {
-										return _.free;
-									}(_p1));
-							},
-							leaders))));
-		};
-		return A3(
-			_user$project$Validation$validate,
-			haveCommonFreeTime,
-			_elm_lang$core$Basics$always('Leaders do not have another common free time'),
-			leaders);
+		if (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$List$length(leaders),
+			2) < 0) {
+			return _elm_lang$core$Native_List.fromArray(
+				[]);
+		} else {
+			var removeTimeslot = _elm_lang$core$List$filter(
+				F2(
+					function (x, y) {
+						return !_elm_lang$core$Native_Utils.eq(x, y);
+					})(timeslot));
+			var haveCommonFreeTime = function (leaders) {
+				return _elm_lang$core$Basics$not(
+					_elm_lang$core$List$isEmpty(
+						_user$project$Util$intersect(
+							A2(
+								_elm_lang$core$List$map,
+								function (_p1) {
+									return removeTimeslot(
+										function (_) {
+											return _.free;
+										}(_p1));
+								},
+								leaders))));
+			};
+			return A3(
+				_user$project$Validation$validate,
+				haveCommonFreeTime,
+				_elm_lang$core$Basics$always('Leaders do not have another common free time'),
+				leaders);
+		}
 	});
 var _user$project$Validation$validateGroup = F2(
 	function (people, group) {
@@ -9868,7 +9514,7 @@ var _user$project$Validation$validateGroup = F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
 						}),
-					_user$project$Data_Person$Asgl,
+					_user$project$Data_Person$Leader,
 					function (_) {
 						return _.role;
 					}(_p2));
@@ -9910,26 +9556,23 @@ var _user$project$Validation$validatePersonInGroup = function (group) {
 var _user$project$GroupPage$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$GroupPage$asglFirst = F2(
+var _user$project$GroupPage$leadersFirst = F2(
 	function (left, right) {
 		var _p0 = {ctor: '_Tuple2', _0: left.role, _1: right.role};
 		_v0_2:
 		do {
-			switch (_p0._0.ctor) {
-				case 'Asgl':
-					if (_p0._1.ctor === 'Member') {
-						return _elm_lang$core$Basics$LT;
-					} else {
-						break _v0_2;
-					}
-				case 'Member':
-					if (_p0._1.ctor === 'Asgl') {
-						return _elm_lang$core$Basics$GT;
-					} else {
-						break _v0_2;
-					}
-				default:
+			if (_p0._0.ctor === 'Leader') {
+				if (_p0._1.ctor === 'Member') {
+					return _elm_lang$core$Basics$LT;
+				} else {
 					break _v0_2;
+				}
+			} else {
+				if (_p0._1.ctor === 'Leader') {
+					return _elm_lang$core$Basics$GT;
+				} else {
+					break _v0_2;
+				}
 			}
 		} while(false);
 		return A2(_elm_lang$core$Basics$compare, left.name, right.name);
@@ -9959,18 +9602,7 @@ var _user$project$GroupPage$splitRoles = function (people) {
 	return {
 		leaders: A2(
 			_elm_lang$core$Dict$filter,
-			_elm_lang$core$Basics$always(
-				function (_p5) {
-					return A2(
-						F2(
-							function (x, y) {
-								return _elm_lang$core$Native_Utils.eq(x, y);
-							}),
-						_user$project$Data_Person$Asgl,
-						function (_) {
-							return _.role;
-						}(_p5));
-				}),
+			_user$project$GroupPage$hasRole(_user$project$Data_Person$Leader),
 			people),
 		members: A2(
 			_elm_lang$core$Dict$filter,
@@ -10008,20 +9640,20 @@ var _user$project$GroupPage$Hover = function (a) {
 	return {ctor: 'Hover', _0: a};
 };
 var _user$project$GroupPage$viewPerson = F3(
-	function (hover, index, _p6) {
-		var _p7 = _p6;
-		var _p10 = _p7._1;
-		var _p9 = _p7._0;
+	function (hover, index, _p5) {
+		var _p6 = _p5;
+		var _p9 = _p6._1;
+		var _p8 = _p6._0;
 		var highlighted = function () {
-			var _p8 = hover;
-			if (_p8.ctor === 'HoverGroup') {
+			var _p7 = hover;
+			if (_p7.ctor === 'HoverGroup') {
 				return A2(
 					_elm_lang$core$List$any,
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
-						})(_p8._0),
-					_p10.free);
+						})(_p7._0),
+					_p9.free);
 			} else {
 				return false;
 			}
@@ -10032,7 +9664,7 @@ var _user$project$GroupPage$viewPerson = F3(
 				function (x, y) {
 					return _elm_lang$core$Native_Utils.eq(x, y);
 				})(_elm_lang$core$Maybe$Nothing),
-			A2(_elm_lang$core$List$map, index.byTimeslot, _p10.free));
+			A2(_elm_lang$core$List$map, index.byTimeslot, _p9.free));
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -10045,20 +9677,20 @@ var _user$project$GroupPage$viewPerson = F3(
 							ctor: '_Tuple2',
 							_0: 'in-group',
 							_1: !_elm_lang$core$Native_Utils.eq(
-								index.byPerson(_p9),
+								index.byPerson(_p8),
 								_elm_lang$core$Maybe$Nothing)
 						},
 							{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
 							{
 							ctor: '_Tuple2',
-							_0: 'asgl',
-							_1: _elm_lang$core$Native_Utils.eq(_p10.role, _user$project$Data_Person$Asgl)
+							_0: 'leader',
+							_1: _elm_lang$core$Native_Utils.eq(_p9.role, _user$project$Data_Person$Leader)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
 						])),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverPerson(_p9))),
+						_user$project$GroupPage$HoverPerson(_p8))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -10069,30 +9701,30 @@ var _user$project$GroupPage$viewPerson = F3(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_user$project$DragAndDrop$draggable(true),
-							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p9)
+							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p8)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p10.name)
+							_elm_lang$html$Html$text(_p9.name)
 						]))
 				]));
 	});
 var _user$project$GroupPage$viewGroupPerson = F3(
-	function (hover, group, _p11) {
-		var _p12 = _p11;
-		var _p15 = _p12._1;
-		var _p14 = _p12._0;
-		var errors = A2(_user$project$Validation$validatePersonInGroup, group, _p15);
+	function (hover, group, _p10) {
+		var _p11 = _p10;
+		var _p14 = _p11._1;
+		var _p13 = _p11._0;
+		var errors = A2(_user$project$Validation$validatePersonInGroup, group, _p14);
 		var highlighted = function () {
-			var _p13 = hover;
-			if (_p13.ctor === 'HoverGroup') {
+			var _p12 = hover;
+			if (_p12.ctor === 'HoverGroup') {
 				return A2(
 					_elm_lang$core$List$any,
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
-						})(_p13._0),
-					_p15.free);
+						})(_p12._0),
+					_p14.free);
 			} else {
 				return false;
 			}
@@ -10107,8 +9739,8 @@ var _user$project$GroupPage$viewGroupPerson = F3(
 							{ctor: '_Tuple2', _0: 'person', _1: true},
 							{
 							ctor: '_Tuple2',
-							_0: 'asgl',
-							_1: _elm_lang$core$Native_Utils.eq(_p15.role, _user$project$Data_Person$Asgl)
+							_0: 'leader',
+							_1: _elm_lang$core$Native_Utils.eq(_p14.role, _user$project$Data_Person$Leader)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted},
 							{
@@ -10120,7 +9752,7 @@ var _user$project$GroupPage$viewGroupPerson = F3(
 						])),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverPerson(_p14))),
+						_user$project$GroupPage$HoverPerson(_p13))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -10134,7 +9766,7 @@ var _user$project$GroupPage$viewGroupPerson = F3(
 								_elm_lang$core$Native_List.fromArray(
 								[
 									_user$project$DragAndDrop$draggable(true),
-									A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p14)
+									A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p13)
 								]),
 								_elm_lang$core$List$isEmpty(errors) ? _elm_lang$core$Native_List.fromArray(
 								[]) : _elm_lang$core$Native_List.fromArray(
@@ -10145,7 +9777,7 @@ var _user$project$GroupPage$viewGroupPerson = F3(
 							])),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p15.name)
+							_elm_lang$html$Html$text(_p14.name)
 						]))
 				]));
 	});
@@ -10177,11 +9809,11 @@ var _user$project$GroupPage$viewPeople = F4(
 					A2(_user$project$GroupPage$viewPerson, hover, index),
 					A2(
 						_elm_lang$core$List$sortBy,
-						function (_p16) {
+						function (_p15) {
 							return function (_) {
 								return _.name;
 							}(
-								_elm_lang$core$Basics$snd(_p16));
+								_elm_lang$core$Basics$snd(_p15));
 						},
 						_elm_lang$core$Dict$toList(people)))));
 	});
@@ -10190,32 +9822,32 @@ var _user$project$GroupPage$Move = F2(
 		return {ctor: 'Move', _0: a, _1: b};
 	});
 var _user$project$GroupPage$viewGroup = F4(
-	function (hover, index, people, _p17) {
-		var _p18 = _p17;
-		var _p21 = _p18._1;
-		var errors = A2(_user$project$Validation$validateGroup, people, _p21);
+	function (hover, index, people, _p16) {
+		var _p17 = _p16;
+		var _p20 = _p17._1;
+		var errors = A2(_user$project$Validation$validateGroup, people, _p20);
 		var hasErrors = _elm_lang$core$Basics$not(
 			_elm_lang$core$List$isEmpty(errors));
 		var highlighted = function () {
-			var _p19 = hover;
-			if (_p19.ctor === 'HoverPerson') {
+			var _p18 = hover;
+			if (_p18.ctor === 'HoverPerson') {
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
-						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p21.time),
-						A2(_elm_lang$core$Dict$get, _p19._0, people)));
+						A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$freeAt, _p20.time),
+						A2(_elm_lang$core$Dict$get, _p18._0, people)));
 			} else {
 				return false;
 			}
 		}();
-		var name = _user$project$Data_Timeslot$toString(_p21.time);
+		var name = _user$project$Data_Timeslot$toString(_p20.time);
 		var members = A2(
 			_elm_lang$core$Dict$filter,
 			F2(
-				function (id, _p20) {
-					return A2(_elm_lang$core$Set$member, id, _p21.people);
+				function (id, _p19) {
+					return A2(_elm_lang$core$Set$member, id, _p20.people);
 				}),
 			people);
 		return A2(
@@ -10235,10 +9867,10 @@ var _user$project$GroupPage$viewGroup = F4(
 					A2(
 					_user$project$DragAndDrop$onDrop,
 					_user$project$Data_Person$idDrag,
-					A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$Move, _p18._0)),
+					A2(_elm_lang$core$Basics$flip, _user$project$GroupPage$Move, _p17._0)),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$GroupPage$Hover(
-						_user$project$GroupPage$HoverGroup(_p21.time))),
+						_user$project$GroupPage$HoverGroup(_p20.time))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$GroupPage$Hover(_user$project$GroupPage$NoHover))
 				]),
@@ -10254,13 +9886,13 @@ var _user$project$GroupPage$viewGroup = F4(
 						])),
 				A2(
 					_elm_lang$core$List$map,
-					A2(_user$project$GroupPage$viewGroupPerson, hover, _p21),
+					A2(_user$project$GroupPage$viewGroupPerson, hover, _p20),
 					A2(
 						_elm_lang$core$List$sortWith,
 						F2(
 							function (a, b) {
 								return A2(
-									_user$project$GroupPage$asglFirst,
+									_user$project$GroupPage$leadersFirst,
 									_elm_lang$core$Basics$snd(a),
 									_elm_lang$core$Basics$snd(b));
 							}),
@@ -10282,15 +9914,15 @@ var _user$project$GroupPage$viewGroups = F4(
 					_user$project$GroupPage$compareGroups,
 					_elm_lang$core$Dict$toList(groups))));
 	});
-var _user$project$GroupPage$view = function (_p22) {
-	var _p23 = _p22;
-	var _p27 = _p23.people;
-	var _p26 = _p23.hover;
-	var _p25 = _p23.groups;
-	var index = _user$project$Data_Group$makeIndex(_p25);
-	var _p24 = _user$project$GroupPage$splitRoles(_p27);
-	var leaders = _p24.leaders;
-	var members = _p24.members;
+var _user$project$GroupPage$view = function (_p21) {
+	var _p22 = _p21;
+	var _p26 = _p22.people;
+	var _p25 = _p22.hover;
+	var _p24 = _p22.groups;
+	var index = _user$project$Data_Group$makeIndex(_p24);
+	var _p23 = _user$project$GroupPage$splitRoles(_p26);
+	var leaders = _p23.leaders;
+	var members = _p23.members;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10299,9 +9931,9 @@ var _user$project$GroupPage$view = function (_p22) {
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A4(_user$project$GroupPage$viewGroups, _p26, index, _p27, _p25),
-				A4(_user$project$GroupPage$viewPeople, _p26, index, 'ASGLs', leaders),
-				A4(_user$project$GroupPage$viewPeople, _p26, index, 'Members', members)
+				A4(_user$project$GroupPage$viewGroups, _p25, index, _p26, _p24),
+				A4(_user$project$GroupPage$viewPeople, _p25, index, 'Leaders', leaders),
+				A4(_user$project$GroupPage$viewPeople, _p25, index, 'Members', members)
 			]));
 };
 var _user$project$GroupPage$None = {ctor: 'None'};
@@ -10311,12 +9943,12 @@ var _user$project$GroupPage$SaveGroups = function (a) {
 var _user$project$GroupPage$update = F2(
 	function (msg, model) {
 		var index = _user$project$Data_Group$makeIndex(model.groups);
-		var _p28 = msg;
-		switch (_p28.ctor) {
+		var _p27 = msg;
+		switch (_p27.ctor) {
 			case 'Move':
 				var groups$ = A2(
 					_elm_lang$core$Dict$map,
-					A2(_user$project$GroupPage$fixGroup, _p28._1, _p28._0),
+					A2(_user$project$GroupPage$fixGroup, _p27._1, _p27._0),
 					model.groups);
 				return A2(
 					_user$project$Util_ops['!!'],
@@ -10329,15 +9961,15 @@ var _user$project$GroupPage$update = F2(
 							[])),
 					_user$project$GroupPage$SaveGroups(groups$));
 			case 'Remove':
-				var _p31 = _p28._0;
-				var _p29 = index.byPerson(_p31);
-				if (_p29.ctor === 'Just') {
-					var _p30 = _p29._0._1;
-					var people$ = A2(_elm_lang$core$Set$remove, _p31, _p30.people);
+				var _p30 = _p27._0;
+				var _p28 = index.byPerson(_p30);
+				if (_p28.ctor === 'Just') {
+					var _p29 = _p28._0._1;
+					var people$ = A2(_elm_lang$core$Set$remove, _p30, _p29.people);
 					var group$ = _elm_lang$core$Native_Utils.update(
-						_p30,
+						_p29,
 						{people: people$});
-					var groups$ = A3(_elm_lang$core$Dict$insert, _p29._0._0, group$, model.groups);
+					var groups$ = A3(_elm_lang$core$Dict$insert, _p28._0._0, group$, model.groups);
 					return A2(
 						_user$project$Util_ops['!!'],
 						A2(
@@ -10365,11 +9997,28 @@ var _user$project$GroupPage$update = F2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
-							{hover: _p28._0}),
+							{hover: _p27._0}),
 						_elm_lang$core$Native_List.fromArray(
 							[])),
 					_user$project$GroupPage$None);
 		}
+	});
+
+var _user$project$Ports$scrollToVisible = _elm_lang$core$Native_Platform.outgoingPort(
+	'scrollToVisible',
+	function (v) {
+		return v;
+	});
+var _user$project$Ports$load = _elm_lang$core$Native_Platform.outgoingPort(
+	'load',
+	function (v) {
+		return null;
+	});
+var _user$project$Ports$loadedData = _elm_lang$core$Native_Platform.incomingPort('loadedData', _elm_lang$core$Json_Decode$value);
+var _user$project$Ports$save = _elm_lang$core$Native_Platform.outgoingPort(
+	'save',
+	function (v) {
+		return v;
 	});
 
 var _user$project$PersonForm$freeAt = F2(
@@ -10390,10 +10039,8 @@ var _user$project$PersonForm$genderFromString = function (input) {
 var _user$project$PersonForm$roleFromString = function (input) {
 	var _p1 = input;
 	switch (_p1) {
-		case 'Howie':
-			return _elm_lang$core$Maybe$Just(_user$project$Data_Person$Howie);
-		case 'Asgl':
-			return _elm_lang$core$Maybe$Just(_user$project$Data_Person$Asgl);
+		case 'Leader':
+			return _elm_lang$core$Maybe$Just(_user$project$Data_Person$Leader);
 		case 'Member':
 			return _elm_lang$core$Maybe$Just(_user$project$Data_Person$Member);
 		default:
@@ -10485,7 +10132,10 @@ var _user$project$PersonForm$viewGender = function (person) {
 		_elm_lang$html$Html$select,
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html_Events$onInput(_user$project$PersonForm$UpdateGender)
+				A2(
+				_elm_lang$html$Html_Events$on,
+				'change',
+				A2(_elm_lang$core$Json_Decode$map, _user$project$PersonForm$UpdateGender, _elm_lang$html$Html_Events$targetValue))
 			]),
 		A2(_elm_lang$core$List$map, opt, _user$project$Data_Person$genders));
 };
@@ -10513,7 +10163,10 @@ var _user$project$PersonForm$viewRole = function (person) {
 		_elm_lang$html$Html$select,
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html_Events$onInput(_user$project$PersonForm$UpdateRole)
+				A2(
+				_elm_lang$html$Html_Events$on,
+				'change',
+				A2(_elm_lang$core$Json_Decode$map, _user$project$PersonForm$UpdateRole, _elm_lang$html$Html_Events$targetValue))
 			]),
 		A2(_elm_lang$core$List$map, opt, _user$project$Data_Person$roles));
 };
@@ -10573,7 +10226,10 @@ var _user$project$PersonForm$update = F2(
 							[])),
 					_user$project$PersonForm$Save(person$));
 			case 'UpdateRole':
-				var _p4 = _user$project$PersonForm$roleFromString(_p3._0);
+				var _p4 = A2(
+					_elm_lang$core$Debug$log,
+					'Bleep',
+					_user$project$PersonForm$roleFromString(_p3._0));
 				if (_p4.ctor === 'Just') {
 					var person$ = _elm_lang$core$Native_Utils.update(
 						person,
@@ -10597,7 +10253,10 @@ var _user$project$PersonForm$update = F2(
 						_user$project$PersonForm$None);
 				}
 			case 'UpdateGender':
-				var _p5 = _user$project$PersonForm$genderFromString(_p3._0);
+				var _p5 = A2(
+					_elm_lang$core$Debug$log,
+					'bloop',
+					_user$project$PersonForm$genderFromString(_p3._0));
 				if (_p5.ctor === 'Just') {
 					var person$ = _elm_lang$core$Native_Utils.update(
 						person,
@@ -10671,13 +10330,7 @@ var _user$project$PersonForm$update = F2(
 		}
 	});
 
-var _user$project$Ports$scrollToVisible = _elm_lang$core$Native_Platform.outgoingPort(
-	'scrollToVisible',
-	function (v) {
-		return v;
-	});
-
-var _user$project$PersonPage$people = function (model) {
+var _user$project$PersonPage$orderedPeople = function (model) {
 	var roleIs = F2(
 		function (value, _p0) {
 			var _p1 = _p0;
@@ -10690,15 +10343,15 @@ var _user$project$PersonPage$people = function (model) {
 			return _p3._1.name;
 		},
 		_elm_lang$core$Dict$toList(model.people));
-	var asgls = A2(
+	var leaders = A2(
 		_elm_lang$core$List$filter,
-		roleIs(_user$project$Data_Person$Asgl),
+		roleIs(_user$project$Data_Person$Leader),
 		sorted);
 	var members = A2(
 		_elm_lang$core$List$filter,
 		roleIs(_user$project$Data_Person$Member),
 		sorted);
-	return A2(_elm_lang$core$Basics_ops['++'], asgls, members);
+	return A2(_elm_lang$core$Basics_ops['++'], leaders, members);
 };
 var _user$project$PersonPage$updateKeyup = F2(
 	function (key, model) {
@@ -10755,13 +10408,9 @@ var _user$project$PersonPage$updateSelection = F2(
 		}
 	});
 var _user$project$PersonPage$moveSelectionUp = function (model) {
-	var pid = function (_p8) {
-		var _p9 = _p8;
-		return _p9._0;
-	};
 	var selection = function () {
-		var _p10 = model.selected;
-		if (_p10.ctor === 'Just') {
+		var _p8 = model.selected;
+		if (_p8.ctor === 'Just') {
 			return _elm_lang$core$List$head(
 				_elm_lang$core$List$reverse(
 					A2(
@@ -10769,55 +10418,51 @@ var _user$project$PersonPage$moveSelectionUp = function (model) {
 						F2(
 							function (x, y) {
 								return !_elm_lang$core$Native_Utils.eq(x, y);
-							})(_p10._0),
+							})(_p8._0),
 						A2(
 							_elm_lang$core$List$map,
-							pid,
-							_user$project$PersonPage$people(model)))));
+							_elm_lang$core$Basics$fst,
+							_user$project$PersonPage$orderedPeople(model)))));
 		} else {
 			return _elm_lang$core$List$head(
 				_elm_lang$core$List$reverse(
 					A2(
 						_elm_lang$core$List$map,
-						pid,
-						_user$project$PersonPage$people(model))));
+						_elm_lang$core$Basics$fst,
+						_user$project$PersonPage$orderedPeople(model))));
 		}
 	}();
 	return A2(_user$project$PersonPage$updateSelection, selection, model);
 };
 var _user$project$PersonPage$moveSelectionDown = function (model) {
-	var pid = function (_p11) {
-		var _p12 = _p11;
-		return _p12._0;
-	};
 	var selection = function () {
-		var _p13 = model.selected;
-		if (_p13.ctor === 'Just') {
+		var _p9 = model.selected;
+		if (_p9.ctor === 'Just') {
 			return _elm_lang$core$List$head(
 				A2(
 					_user$project$Util$dropWhile,
 					F2(
 						function (x, y) {
 							return !_elm_lang$core$Native_Utils.eq(x, y);
-						})(_p13._0),
+						})(_p9._0),
 					A2(
 						_elm_lang$core$List$map,
-						pid,
-						_user$project$PersonPage$people(model))));
+						_elm_lang$core$Basics$fst,
+						_user$project$PersonPage$orderedPeople(model))));
 		} else {
 			return _elm_lang$core$List$head(
 				A2(
 					_elm_lang$core$List$map,
-					pid,
-					_user$project$PersonPage$people(model)));
+					_elm_lang$core$Basics$fst,
+					_user$project$PersonPage$orderedPeople(model)));
 		}
 	}();
 	return A2(_user$project$PersonPage$updateSelection, selection, model);
 };
 var _user$project$PersonPage$updateKeydown = F2(
 	function (key, model) {
-		var _p14 = key;
-		switch (_p14) {
+		var _p10 = key;
+		switch (_p10) {
 			case 18:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -10926,25 +10571,25 @@ var _user$project$PersonPage$Select = function (a) {
 };
 var _user$project$PersonPage$viewList = function (model) {
 	var selected = function (id) {
-		var _p15 = {ctor: '_Tuple2', _0: id, _1: model.selected};
-		_v10_2:
+		var _p11 = {ctor: '_Tuple2', _0: id, _1: model.selected};
+		_v8_2:
 		do {
-			if (_p15.ctor === '_Tuple2') {
-				if (_p15._0.ctor === 'Just') {
-					if (_p15._1.ctor === 'Just') {
-						return _elm_lang$core$Native_Utils.eq(_p15._0._0, _p15._1._0);
+			if (_p11.ctor === '_Tuple2') {
+				if (_p11._0.ctor === 'Just') {
+					if (_p11._1.ctor === 'Just') {
+						return _elm_lang$core$Native_Utils.eq(_p11._0._0, _p11._1._0);
 					} else {
-						break _v10_2;
+						break _v8_2;
 					}
 				} else {
-					if (_p15._1.ctor === 'Nothing') {
+					if (_p11._1.ctor === 'Nothing') {
 						return true;
 					} else {
-						break _v10_2;
+						break _v8_2;
 					}
 				}
 			} else {
-				break _v10_2;
+				break _v8_2;
 			}
 		} while(false);
 		return false;
@@ -10971,16 +10616,16 @@ var _user$project$PersonPage$viewList = function (model) {
 			[
 				_elm_lang$html$Html$text('[new person]')
 			]));
-	var item = function (_p16) {
-		var _p17 = _p16;
-		var _p18 = _p17._0;
+	var item = function (_p12) {
+		var _p13 = _p12;
+		var _p14 = _p13._0;
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
 				[
 					_elm_lang$html$Html_Events$onClick(
 					_user$project$PersonPage$Select(
-						_elm_lang$core$Maybe$Just(_p18))),
+						_elm_lang$core$Maybe$Just(_p14))),
 					_elm_lang$html$Html_Attributes$classList(
 					_elm_lang$core$Native_List.fromArray(
 						[
@@ -10989,22 +10634,22 @@ var _user$project$PersonPage$viewList = function (model) {
 							ctor: '_Tuple2',
 							_0: 'selected',
 							_1: selected(
-								_elm_lang$core$Maybe$Just(_p18))
+								_elm_lang$core$Maybe$Just(_p14))
 						}
 						])),
 					_elm_lang$html$Html_Attributes$id(
-					A2(_elm_lang$core$Basics_ops['++'], 'person-', _p18))
+					A2(_elm_lang$core$Basics_ops['++'], 'person-', _p14))
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html$text(_p17._1.name),
+					_elm_lang$html$Html$text(_p13._1.name),
 					A2(
 					_elm_lang$html$Html$a,
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html_Attributes$class('delete'),
 							_elm_lang$html$Html_Events$onClick(
-							_user$project$PersonPage$Delete(_p18))
+							_user$project$PersonPage$Delete(_p14))
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
@@ -11012,30 +10657,30 @@ var _user$project$PersonPage$viewList = function (model) {
 						]))
 				]));
 	};
-	var asglList = A2(
+	var leaderList = A2(
 		_elm_lang$core$List$map,
 		item,
 		A2(
 			_elm_lang$core$List$filter,
-			function (_p19) {
+			function (_p15) {
 				return A2(
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
 						}),
-					_user$project$Data_Person$Asgl,
+					_user$project$Data_Person$Leader,
 					function (_) {
 						return _.role;
 					}(
-						_elm_lang$core$Basics$snd(_p19)));
+						_elm_lang$core$Basics$snd(_p15)));
 			},
-			_user$project$PersonPage$people(model)));
+			_user$project$PersonPage$orderedPeople(model)));
 	var memberList = A2(
 		_elm_lang$core$List$map,
 		item,
 		A2(
 			_elm_lang$core$List$filter,
-			function (_p20) {
+			function (_p16) {
 				return A2(
 					F2(
 						function (x, y) {
@@ -11045,9 +10690,9 @@ var _user$project$PersonPage$viewList = function (model) {
 					function (_) {
 						return _.role;
 					}(
-						_elm_lang$core$Basics$snd(_p20)));
+						_elm_lang$core$Basics$snd(_p16)));
 			},
-			_user$project$PersonPage$people(model)));
+			_user$project$PersonPage$orderedPeople(model)));
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -11067,10 +10712,10 @@ var _user$project$PersonPage$viewList = function (model) {
 							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text('ASGLs')
+								_elm_lang$html$Html$text('Leaders')
 							]))
 					]),
-					asglList,
+					leaderList,
 					_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
@@ -11104,22 +10749,22 @@ var _user$project$PersonPage$SavePeople = function (a) {
 };
 var _user$project$PersonPage$update = F2(
 	function (msg, model) {
-		var _p21 = msg;
-		switch (_p21.ctor) {
+		var _p17 = msg;
+		switch (_p17.ctor) {
 			case 'FormMsg':
-				var _p22 = A2(_user$project$PersonForm$update, _p21._0, model.form);
-				var form = _p22._0;
-				var cmd = _p22._1;
-				var fromForm = _p22._2;
-				var _p23 = A2(
+				var _p18 = A2(_user$project$PersonForm$update, _p17._0, model.form);
+				var form = _p18._0;
+				var cmd = _p18._1;
+				var fromForm = _p18._2;
+				var _p19 = A2(
 					_user$project$PersonPage$updateFromForm,
 					fromForm,
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{form: form}));
-				var model = _p23._0;
-				var cmd2 = _p23._1;
-				var parentMsg = _p23._2;
+				var model = _p19._0;
+				var cmd2 = _p19._1;
+				var parentMsg = _p19._2;
 				return A2(
 					_user$project$Util_ops['!!'],
 					A2(
@@ -11133,19 +10778,19 @@ var _user$project$PersonPage$update = F2(
 					_user$project$Util_ops['!!'],
 					A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						A2(_user$project$PersonPage$updateKeyup, _p21._0, model),
+						A2(_user$project$PersonPage$updateKeyup, _p17._0, model),
 						_elm_lang$core$Native_List.fromArray(
 							[])),
 					_user$project$PersonPage$None);
 			case 'KeyDown':
 				return A2(
 					_user$project$Util_ops['!!'],
-					A2(_user$project$PersonPage$updateKeydown, _p21._0, model),
+					A2(_user$project$PersonPage$updateKeydown, _p17._0, model),
 					_user$project$PersonPage$None);
 			case 'Select':
 				return A2(
 					_user$project$Util_ops['!!'],
-					A2(_user$project$PersonPage$updateSelection, _p21._0, model),
+					A2(_user$project$PersonPage$updateSelection, _p17._0, model),
 					_user$project$PersonPage$None);
 			case 'Add':
 				return A2(
@@ -11157,13 +10802,13 @@ var _user$project$PersonPage$update = F2(
 							[
 								A2(
 								_elm_lang$core$Random$generate,
-								A2(_elm_lang$core$Basics$flip, _user$project$PersonPage$Save, _p21._0),
+								A2(_elm_lang$core$Basics$flip, _user$project$PersonPage$Save, _p17._0),
 								_user$project$Util$idGenerator)
 							])),
 					_user$project$PersonPage$None);
 			case 'Save':
-				var _p24 = _p21._0;
-				var people = A3(_elm_lang$core$Dict$insert, _p24, _p21._1, model.people);
+				var _p20 = _p17._0;
+				var people = A3(_elm_lang$core$Dict$insert, _p20, _p17._1, model.people);
 				var model = _elm_lang$core$Native_Utils.update(
 					model,
 					{people: people});
@@ -11171,35 +10816,54 @@ var _user$project$PersonPage$update = F2(
 					_user$project$Util_ops['!!'],
 					A2(
 						_user$project$PersonPage$updateSelection,
-						_elm_lang$core$Maybe$Just(_p24),
+						_elm_lang$core$Maybe$Just(_p20),
 						model),
 					_user$project$PersonPage$SavePeople(people));
 			default:
-				var people = A2(_elm_lang$core$Dict$remove, _p21._0, model.people);
+				var _p22 = _p17._0;
+				var selected$ = function () {
+					var _p21 = model.selected;
+					if (_p21.ctor === 'Just') {
+						return _elm_lang$core$Native_Utils.eq(_p21._0, _p22) ? _elm_lang$core$List$head(
+							A2(
+								_user$project$Util$dropWhile,
+								F2(
+									function (x, y) {
+										return !_elm_lang$core$Native_Utils.eq(x, y);
+									})(_p22),
+								A2(
+									_elm_lang$core$List$map,
+									_elm_lang$core$Basics$fst,
+									_user$project$PersonPage$orderedPeople(model)))) : model.selected;
+					} else {
+						return model.selected;
+					}
+				}();
+				var people$ = A2(_elm_lang$core$Dict$remove, _p22, model.people);
 				var model$ = _elm_lang$core$Native_Utils.update(
 					model,
-					{people: people});
+					{people: people$});
 				return A2(
 					_user$project$Util_ops['!!'],
-					A2(_user$project$PersonPage$updateSelection, _elm_lang$core$Maybe$Nothing, model$),
-					_user$project$PersonPage$SavePeople(people));
+					A2(_user$project$PersonPage$updateSelection, selected$, model$),
+					_user$project$PersonPage$SavePeople(people$));
 		}
 	});
 var _user$project$PersonPage$updateFromForm = F2(
 	function (msg, model) {
-		var _p25 = msg;
-		if (_p25.ctor === 'Save') {
-			var _p27 = _p25._0;
-			var _p26 = model.selected;
-			if (_p26.ctor === 'Just') {
+		var _p23 = msg;
+		if (_p23.ctor === 'Save') {
+			var _p25 = _p23._0;
+			var _p24 = model.selected;
+			if (_p24.ctor === 'Just') {
 				return A2(
 					_user$project$PersonPage$update,
-					A2(_user$project$PersonPage$Save, _p26._0, _p27),
+					A2(_user$project$PersonPage$Save, _p24._0, _p25),
 					model);
 			} else {
 				return A2(
 					_user$project$PersonPage$update,
-					_user$project$PersonPage$Add(_p27),
+					_user$project$PersonPage$Add(_p25),
 					model);
 			}
 		} else {
@@ -11217,26 +10881,23 @@ var _user$project$PersonPage$updateFromForm = F2(
 var _user$project$TimePage$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$TimePage$asglFirst = F2(
+var _user$project$TimePage$leadersFirst = F2(
 	function (left, right) {
 		var _p0 = {ctor: '_Tuple2', _0: left.role, _1: right.role};
 		_v0_2:
 		do {
-			switch (_p0._0.ctor) {
-				case 'Asgl':
-					if (_p0._1.ctor === 'Member') {
-						return _elm_lang$core$Basics$LT;
-					} else {
-						break _v0_2;
-					}
-				case 'Member':
-					if (_p0._1.ctor === 'Asgl') {
-						return _elm_lang$core$Basics$GT;
-					} else {
-						break _v0_2;
-					}
-				default:
+			if (_p0._0.ctor === 'Leader') {
+				if (_p0._1.ctor === 'Member') {
+					return _elm_lang$core$Basics$LT;
+				} else {
 					break _v0_2;
+				}
+			} else {
+				if (_p0._1.ctor === 'Leader') {
+					return _elm_lang$core$Basics$GT;
+				} else {
+					break _v0_2;
+				}
 			}
 		} while(false);
 		return A2(_elm_lang$core$Basics$compare, left.name, right.name);
@@ -11364,7 +11025,7 @@ var _user$project$TimePage$splitRoles = function (people) {
 	return {
 		leaders: A2(
 			_elm_lang$core$Dict$filter,
-			_user$project$TimePage$hasRole(_user$project$Data_Person$Asgl),
+			_user$project$TimePage$hasRole(_user$project$Data_Person$Leader),
 			people),
 		members: A2(
 			_elm_lang$core$Dict$filter,
@@ -11435,8 +11096,8 @@ var _user$project$TimePage$viewGroupPerson = F3(
 							{ctor: '_Tuple2', _0: 'person', _1: true},
 							{
 							ctor: '_Tuple2',
-							_0: 'asgl',
-							_1: _elm_lang$core$Native_Utils.eq(_p6.role, _user$project$Data_Person$Asgl)
+							_0: 'leader',
+							_1: _elm_lang$core$Native_Utils.eq(_p6.role, _user$project$Data_Person$Leader)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted},
 							{
@@ -11521,8 +11182,8 @@ var _user$project$TimePage$viewPerson = F3(
 							{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
 							{
 							ctor: '_Tuple2',
-							_0: 'asgl',
-							_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Asgl)
+							_0: 'leader',
+							_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Leader)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
 						])),
@@ -11725,7 +11386,7 @@ var _user$project$TimePage$viewTimeslot = F4(
 						A2(_user$project$TimePage$viewGroupPerson, hover, _p21),
 						A2(
 							_elm_lang$core$List$sortWith,
-							_user$project$TimePage$sortSecond(_user$project$TimePage$asglFirst),
+							_user$project$TimePage$sortSecond(_user$project$TimePage$leadersFirst),
 							A2(
 								_elm_lang$core$List$concatMap,
 								lookupPerson,
@@ -11785,7 +11446,7 @@ var _user$project$TimePage$view = function (model) {
 							[]),
 						A3(_user$project$TimePage$viewTimeslot, model.hover, people, fns))
 					])),
-				A4(_user$project$TimePage$viewPeople, model.hover, index, 'ASGLs', leaders),
+				A4(_user$project$TimePage$viewPeople, model.hover, index, 'Leaders', leaders),
 				A4(_user$project$TimePage$viewPeople, model.hover, index, 'Members', members)
 			]));
 };
@@ -11975,6 +11636,34 @@ var _user$project$TimePage$update = F2(
 		}
 	});
 
+var _user$project$Pages$requestDecoder = A3(
+	_elm_lang$core$Json_Decode$object2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'people',
+		_elm_lang$core$Json_Decode$dict(_user$project$Data_Person$decode)),
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'groups',
+		_elm_lang$core$Json_Decode$dict(_user$project$Data_Group$decode)));
+var _user$project$Pages$viewLink = F2(
+	function (str, msg) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('management'),
+					_elm_lang$html$Html_Events$onClick(msg)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(str)
+				]));
+	});
 var _user$project$Pages$persist = F2(
 	function (model, persisted) {
 		var _p0 = model;
@@ -12010,6 +11699,23 @@ var _user$project$Pages$Model = F5(
 var _user$project$Pages$Groups = {ctor: 'Groups'};
 var _user$project$Pages$Times = {ctor: 'Times'};
 var _user$project$Pages$People = {ctor: 'People'};
+var _user$project$Pages$LoadFail = function (a) {
+	return {ctor: 'LoadFail', _0: a};
+};
+var _user$project$Pages$LoadData = F2(
+	function (a, b) {
+		return {ctor: 'LoadData', _0: a, _1: b};
+	});
+var _user$project$Pages$decodeValue = function (value) {
+	var _p2 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Pages$requestDecoder, value);
+	if (_p2.ctor === 'Ok') {
+		return A2(_user$project$Pages$LoadData, _p2._0._0, _p2._0._1);
+	} else {
+		return _user$project$Pages$LoadFail('Couldn\'t read file!');
+	}
+};
+var _user$project$Pages$Load = {ctor: 'Load'};
+var _user$project$Pages$Save = {ctor: 'Save'};
 var _user$project$Pages$KeyUp = function (a) {
 	return {ctor: 'KeyUp', _0: a};
 };
@@ -12021,7 +11727,8 @@ var _user$project$Pages$topLevelSubscriptions = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_elm_lang$keyboard$Keyboard$downs(_user$project$Pages$KeyDown),
-				_elm_lang$keyboard$Keyboard$ups(_user$project$Pages$KeyUp)
+				_elm_lang$keyboard$Keyboard$ups(_user$project$Pages$KeyUp),
+				_user$project$Ports$loadedData(_user$project$Pages$decodeValue)
 			])) : _elm_lang$keyboard$Keyboard$downs(_user$project$Pages$KeyDown);
 };
 var _user$project$Pages$ChangePage = function (a) {
@@ -12030,32 +11737,32 @@ var _user$project$Pages$ChangePage = function (a) {
 var _user$project$Pages$viewNavLink = F2(
 	function (page, model) {
 		var selected = function () {
-			var _p2 = {ctor: '_Tuple2', _0: model, _1: page};
-			_v2_3:
+			var _p3 = {ctor: '_Tuple2', _0: model, _1: page};
+			_v3_3:
 			do {
-				if (_p2.ctor === '_Tuple2') {
-					switch (_p2._0.ctor) {
+				if (_p3.ctor === '_Tuple2') {
+					switch (_p3._0.ctor) {
 						case 'Person':
-							if (_p2._1.ctor === 'People') {
+							if (_p3._1.ctor === 'People') {
 								return true;
 							} else {
-								break _v2_3;
+								break _v3_3;
 							}
 						case 'Time':
-							if (_p2._1.ctor === 'Times') {
+							if (_p3._1.ctor === 'Times') {
 								return true;
 							} else {
-								break _v2_3;
+								break _v3_3;
 							}
 						default:
-							if (_p2._1.ctor === 'Groups') {
+							if (_p3._1.ctor === 'Groups') {
 								return true;
 							} else {
-								break _v2_3;
+								break _v3_3;
 							}
 					}
 				} else {
-					break _v2_3;
+					break _v3_3;
 				}
 			} while(false);
 			return false;
@@ -12088,23 +11795,23 @@ var _user$project$Pages$PersonMsg = function (a) {
 	return {ctor: 'PersonMsg', _0: a};
 };
 var _user$project$Pages$viewPage = function (model) {
-	var _p3 = model.page;
-	switch (_p3.ctor) {
+	var _p4 = model.page;
+	switch (_p4.ctor) {
 		case 'Person':
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$PersonMsg,
-				_user$project$PersonPage$view(_p3._0));
+				_user$project$PersonPage$view(_p4._0));
 		case 'Time':
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$TimeMsg,
-				_user$project$TimePage$view(_p3._0));
+				_user$project$TimePage$view(_p4._0));
 		default:
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$GroupMsg,
-				_user$project$GroupPage$view(_p3._0));
+				_user$project$GroupPage$view(_p4._0));
 	}
 };
 var _user$project$Pages$view = function (model) {
@@ -12126,29 +11833,31 @@ var _user$project$Pages$view = function (model) {
 					[
 						A2(_user$project$Pages$viewNavLink, _user$project$Pages$People, model.page),
 						A2(_user$project$Pages$viewNavLink, _user$project$Pages$Times, model.page),
-						A2(_user$project$Pages$viewNavLink, _user$project$Pages$Groups, model.page)
+						A2(_user$project$Pages$viewNavLink, _user$project$Pages$Groups, model.page),
+						A2(_user$project$Pages$viewLink, 'Save', _user$project$Pages$Save),
+						A2(_user$project$Pages$viewLink, 'Load', _user$project$Pages$Load)
 					])),
 				_user$project$Pages$viewPage(model)
 			]));
 };
 var _user$project$Pages$pageSubscriptions = function (model) {
-	var _p4 = model.page;
-	switch (_p4.ctor) {
+	var _p5 = model.page;
+	switch (_p5.ctor) {
 		case 'Person':
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$PersonMsg,
-				_user$project$PersonPage$subscriptions(_p4._0));
+				_user$project$PersonPage$subscriptions(_p5._0));
 		case 'Time':
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$TimeMsg,
-				_user$project$TimePage$subscriptions(_p4._0));
+				_user$project$TimePage$subscriptions(_p5._0));
 		default:
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$GroupMsg,
-				_user$project$GroupPage$subscriptions(_p4._0));
+				_user$project$GroupPage$subscriptions(_p5._0));
 	}
 };
 var _user$project$Pages$subscriptions = function (model) {
@@ -12156,7 +11865,8 @@ var _user$project$Pages$subscriptions = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_user$project$Pages$pageSubscriptions(model),
-				_user$project$Pages$topLevelSubscriptions(model)
+				_user$project$Pages$topLevelSubscriptions(model),
+				_user$project$Ports$loadedData(_user$project$Pages$decodeValue)
 			]));
 };
 var _user$project$Pages$None = {ctor: 'None'};
@@ -12166,19 +11876,19 @@ var _user$project$Pages$SaveData = F2(
 	});
 var _user$project$Pages$updatePerson = F2(
 	function (msg, model) {
-		var _p5 = msg;
-		if (_p5.ctor === 'SavePeople') {
-			var _p6 = _p5._0;
+		var _p6 = msg;
+		if (_p6.ctor === 'SavePeople') {
+			var _p7 = _p6._0;
 			return A2(
 				_user$project$Util_ops['!!'],
 				A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{people: _p6}),
+						{people: _p7}),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
-				A2(_user$project$Pages$SaveData, _p6, model.groups));
+				A2(_user$project$Pages$SaveData, _p7, model.groups));
 		} else {
 			return A2(
 				_user$project$Util_ops['!!'],
@@ -12192,19 +11902,19 @@ var _user$project$Pages$updatePerson = F2(
 	});
 var _user$project$Pages$updateTime = F2(
 	function (msg, model) {
-		var _p7 = msg;
-		if (_p7.ctor === 'SaveGroups') {
-			var _p8 = _p7._0;
+		var _p8 = msg;
+		if (_p8.ctor === 'SaveGroups') {
+			var _p9 = _p8._0;
 			return A2(
 				_user$project$Util_ops['!!'],
 				A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{groups: _p8}),
+						{groups: _p9}),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
-				A2(_user$project$Pages$SaveData, model.people, _p8));
+				A2(_user$project$Pages$SaveData, model.people, _p9));
 		} else {
 			return A2(
 				_user$project$Util_ops['!!'],
@@ -12218,19 +11928,19 @@ var _user$project$Pages$updateTime = F2(
 	});
 var _user$project$Pages$updateGroup = F2(
 	function (msg, model) {
-		var _p9 = msg;
-		if (_p9.ctor === 'SaveGroups') {
-			var _p10 = _p9._0;
+		var _p10 = msg;
+		if (_p10.ctor === 'SaveGroups') {
+			var _p11 = _p10._0;
 			return A2(
 				_user$project$Util_ops['!!'],
 				A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{groups: _p10}),
+						{groups: _p11}),
 					_elm_lang$core$Native_List.fromArray(
 						[])),
-				A2(_user$project$Pages$SaveData, model.people, _p10));
+				A2(_user$project$Pages$SaveData, model.people, _p11));
 		} else {
 			return A2(
 				_user$project$Util_ops['!!'],
@@ -12245,17 +11955,81 @@ var _user$project$Pages$updateGroup = F2(
 var _user$project$Pages$Group = function (a) {
 	return {ctor: 'Group', _0: a};
 };
+var _user$project$Pages$updateGroupMsg = F2(
+	function (pmsg, model) {
+		var _p12 = model.page;
+		if (_p12.ctor === 'Group') {
+			var _p13 = A2(_user$project$GroupPage$update, pmsg, _p12._0);
+			var pmodel$ = _p13._0;
+			var pcmd = _p13._1;
+			var parentMsg = _p13._2;
+			var _p14 = A2(_user$project$Pages$updateGroup, parentMsg, model);
+			var model$ = _p14._0;
+			var cmd = _p14._1;
+			var msg = _p14._2;
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model$,
+					{
+						page: _user$project$Pages$Group(pmodel$)
+					}),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$GroupMsg, pcmd),
+						cmd
+					]));
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				model,
+				_elm_lang$core$Native_List.fromArray(
+					[]));
+		}
+	});
 var _user$project$Pages$Time = function (a) {
 	return {ctor: 'Time', _0: a};
 };
+var _user$project$Pages$updateTimeMsg = F2(
+	function (pmsg, model) {
+		var _p15 = model.page;
+		if (_p15.ctor === 'Time') {
+			var _p16 = A2(_user$project$TimePage$update, pmsg, _p15._0);
+			var pmodel$ = _p16._0;
+			var pcmd = _p16._1;
+			var parentMsg = _p16._2;
+			var _p17 = A2(_user$project$Pages$updateTime, parentMsg, model);
+			var model$ = _p17._0;
+			var cmd = _p17._1;
+			var msg = _p17._2;
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model$,
+					{
+						page: _user$project$Pages$Time(pmodel$)
+					}),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$TimeMsg, pcmd),
+						cmd
+					]));
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				model,
+				_elm_lang$core$Native_List.fromArray(
+					[]));
+		}
+	});
 var _user$project$Pages$Person = function (a) {
 	return {ctor: 'Person', _0: a};
 };
 var _user$project$Pages$init = F2(
 	function (people, groups) {
-		var _p11 = A2(_user$project$PersonPage$init, _elm_lang$core$Maybe$Nothing, people);
-		var model = _p11._0;
-		var cmd = _p11._1;
+		var _p18 = A2(_user$project$PersonPage$init, _elm_lang$core$Maybe$Nothing, people);
+		var model = _p18._0;
+		var cmd = _p18._1;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			{
@@ -12273,12 +12047,12 @@ var _user$project$Pages$init = F2(
 var _user$project$Pages$changePage = F2(
 	function (page, model) {
 		var persisted = A2(_user$project$Pages$persist, model.page, model.persistedModels);
-		var _p12 = page;
-		switch (_p12.ctor) {
+		var _p19 = page;
+		switch (_p19.ctor) {
 			case 'People':
-				var _p13 = A2(_user$project$PersonPage$init, model.persistedModels.person, model.people);
-				var pmodel = _p13._0;
-				var pcmd = _p13._1;
+				var _p20 = A2(_user$project$PersonPage$init, model.persistedModels.person, model.people);
+				var pmodel = _p20._0;
+				var pcmd = _p20._1;
 				var model$ = _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12293,9 +12067,9 @@ var _user$project$Pages$changePage = F2(
 							A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$PersonMsg, pcmd)
 						]));
 			case 'Times':
-				var _p14 = A2(_user$project$TimePage$init, model.people, model.groups);
-				var pmodel = _p14._0;
-				var pcmd = _p14._1;
+				var _p21 = A2(_user$project$TimePage$init, model.people, model.groups);
+				var pmodel = _p21._0;
+				var pcmd = _p21._1;
 				var model$ = _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12310,9 +12084,9 @@ var _user$project$Pages$changePage = F2(
 							A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$TimeMsg, pcmd)
 						]));
 			default:
-				var _p15 = A2(_user$project$GroupPage$init, model.people, model.groups);
-				var pmodel = _p15._0;
-				var pcmd = _p15._1;
+				var _p22 = A2(_user$project$GroupPage$init, model.people, model.groups);
+				var pmodel = _p22._0;
+				var pcmd = _p22._1;
 				var model$ = _elm_lang$core$Native_Utils.update(
 					model,
 					{
@@ -12328,9 +12102,36 @@ var _user$project$Pages$changePage = F2(
 						]));
 		}
 	});
+var _user$project$Pages$reInit = F3(
+	function (people, groups, model) {
+		var _p23 = model.page;
+		switch (_p23.ctor) {
+			case 'Person':
+				return A2(
+					_user$project$Pages$changePage,
+					_user$project$Pages$People,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{people: people, groups: groups}));
+			case 'Time':
+				return A2(
+					_user$project$Pages$changePage,
+					_user$project$Pages$Times,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{people: people, groups: groups}));
+			default:
+				return A2(
+					_user$project$Pages$changePage,
+					_user$project$Pages$Groups,
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{people: people, groups: groups}));
+		}
+	});
 var _user$project$Pages$changePageLeft = function (model) {
-	var _p16 = model.page;
-	switch (_p16.ctor) {
+	var _p24 = model.page;
+	switch (_p24.ctor) {
 		case 'Person':
 			return A2(_user$project$Pages$changePage, _user$project$Pages$Groups, model);
 		case 'Time':
@@ -12340,8 +12141,8 @@ var _user$project$Pages$changePageLeft = function (model) {
 	}
 };
 var _user$project$Pages$changePageRight = function (model) {
-	var _p17 = model.page;
-	switch (_p17.ctor) {
+	var _p25 = model.page;
+	switch (_p25.ctor) {
 		case 'Person':
 			return A2(_user$project$Pages$changePage, _user$project$Pages$Times, model);
 		case 'Time':
@@ -12352,8 +12153,8 @@ var _user$project$Pages$changePageRight = function (model) {
 };
 var _user$project$Pages$updateKeydown = F2(
 	function (key, model) {
-		var _p18 = key;
-		switch (_p18) {
+		var _p26 = key;
+		switch (_p26) {
 			case 17:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -12382,200 +12183,29 @@ var _user$project$Pages$updateKeydown = F2(
 						[]));
 		}
 	});
-var _user$project$Pages$update = F2(
-	function (msg, model) {
-		var _p19 = {ctor: '_Tuple2', _0: msg, _1: model.page};
-		switch (_p19._0.ctor) {
-			case 'PersonMsg':
-				if (_p19._1.ctor === 'Person') {
-					var _p20 = A2(_user$project$PersonPage$update, _p19._0._0, _p19._1._0);
-					var pmodel$ = _p20._0;
-					var pcmd = _p20._1;
-					var parentMsg = _p20._2;
-					var _p21 = A2(_user$project$Pages$updatePerson, parentMsg, model);
-					var model$ = _p21._0;
-					var cmd = _p21._1;
-					var msg = _p21._2;
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							_elm_lang$core$Native_Utils.update(
-								model$,
-								{
-									page: _user$project$Pages$Person(pmodel$)
-								}),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$PersonMsg, pcmd),
-									cmd
-								])),
-						msg);
-				} else {
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							model,
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-						_user$project$Pages$None);
-				}
-			case 'TimeMsg':
-				if (_p19._1.ctor === 'Time') {
-					var _p22 = A2(_user$project$TimePage$update, _p19._0._0, _p19._1._0);
-					var pmodel$ = _p22._0;
-					var pcmd = _p22._1;
-					var parentMsg = _p22._2;
-					var _p23 = A2(_user$project$Pages$updateTime, parentMsg, model);
-					var model$ = _p23._0;
-					var cmd = _p23._1;
-					var msg = _p23._2;
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							_elm_lang$core$Native_Utils.update(
-								model$,
-								{
-									page: _user$project$Pages$Time(pmodel$)
-								}),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$TimeMsg, pcmd),
-									cmd
-								])),
-						msg);
-				} else {
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							model,
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-						_user$project$Pages$None);
-				}
-			case 'GroupMsg':
-				if (_p19._1.ctor === 'Group') {
-					var _p24 = A2(_user$project$GroupPage$update, _p19._0._0, _p19._1._0);
-					var pmodel$ = _p24._0;
-					var pcmd = _p24._1;
-					var parentMsg = _p24._2;
-					var _p25 = A2(_user$project$Pages$updateGroup, parentMsg, model);
-					var model$ = _p25._0;
-					var cmd = _p25._1;
-					var msg = _p25._2;
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							_elm_lang$core$Native_Utils.update(
-								model$,
-								{
-									page: _user$project$Pages$Group(pmodel$)
-								}),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$GroupMsg, pcmd),
-									cmd
-								])),
-						msg);
-				} else {
-					return A2(
-						_user$project$Util_ops['!!'],
-						A2(
-							_elm_lang$core$Platform_Cmd_ops['!'],
-							model,
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-						_user$project$Pages$None);
-				}
-			case 'ChangePage':
-				return A2(
-					_user$project$Util_ops['!!'],
-					A2(_user$project$Pages$changePage, _p19._0._0, model),
-					_user$project$Pages$None);
-			case 'KeyDown':
-				return A2(
-					_user$project$Util_ops['!!'],
-					A2(_user$project$Pages$updateKeydown, _p19._0._0, model),
-					_user$project$Pages$None);
-			default:
-				return A2(
-					_user$project$Util_ops['!!'],
-					A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						A2(_user$project$Pages$updateKeyup, _p19._0._0, model),
-						_elm_lang$core$Native_List.fromArray(
-							[])),
-					_user$project$Pages$None);
-		}
-	});
-
-var _user$project$Main$encode = F2(
-	function (people, groups) {
-		var groups$ = _elm_lang$core$Json_Encode$object(
-			_elm_lang$core$Dict$toList(
-				A2(
-					_elm_lang$core$Dict$map,
-					_elm_lang$core$Basics$always(_user$project$Data_Group$encode),
-					groups)));
-		var people$ = _elm_lang$core$Json_Encode$object(
-			_elm_lang$core$Dict$toList(
-				A2(
-					_elm_lang$core$Dict$map,
-					_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
-					people)));
-		return _elm_lang$core$Json_Encode$object(
-			_elm_lang$core$Native_List.fromArray(
-				[
-					{ctor: '_Tuple2', _0: 'people', _1: people$},
-					{ctor: '_Tuple2', _0: 'groups', _1: groups$}
-				]));
-	});
-var _user$project$Main$requestDecoder = A3(
-	_elm_lang$core$Json_Decode$object2,
-	F2(
-		function (v0, v1) {
-			return {ctor: '_Tuple2', _0: v0, _1: v1};
-		}),
-	A2(
-		_elm_lang$core$Json_Decode_ops[':='],
-		'people',
-		_elm_lang$core$Json_Decode$dict(_user$project$Data_Person$decode)),
-	A2(
-		_elm_lang$core$Json_Decode_ops[':='],
-		'groups',
-		_elm_lang$core$Json_Decode$dict(_user$project$Data_Group$decode)));
-var _user$project$Main$Model = F4(
-	function (a, b, c, d) {
-		return {people: a, groups: b, url: c, state: d};
-	});
-var _user$project$Main$Saved = function (a) {
-	return {ctor: 'Saved', _0: a};
-};
-var _user$project$Main$SaveFail = function (a) {
-	return {ctor: 'SaveFail', _0: a};
-};
-var _user$project$Main$updateFromPages = F2(
-	function (msg, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'SaveData') {
-			var model$ = _elm_lang$core$Native_Utils.update(
-				model,
-				{people: _p0._0, groups: _p0._1});
-			var request = A3(
-				_evancz$elm_http$Http$post,
-				_user$project$Main$requestDecoder,
-				model.url,
-				_evancz$elm_http$Http$string('bleepblah'));
+var _user$project$Pages$updatePersonMsg = F2(
+	function (pmsg, model) {
+		var _p27 = model.page;
+		if (_p27.ctor === 'Person') {
+			var _p28 = A2(_user$project$PersonPage$update, pmsg, _p27._0);
+			var pmodel$ = _p28._0;
+			var pcmd = _p28._1;
+			var parentMsg = _p28._2;
+			var _p29 = A2(_user$project$Pages$updatePerson, parentMsg, model);
+			var model$ = _p29._0;
+			var cmd = _p29._1;
+			var msg = _p29._2;
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
-				model$,
+				_elm_lang$core$Native_Utils.update(
+					model$,
+					{
+						page: _user$project$Pages$Person(pmodel$)
+					}),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						A3(_elm_lang$core$Task$perform, _user$project$Main$SaveFail, _user$project$Main$Saved, request)
+						A2(_elm_lang$core$Platform_Cmd$map, _user$project$Pages$PersonMsg, pcmd),
+						cmd
 					]));
 		} else {
 			return A2(
@@ -12585,142 +12215,80 @@ var _user$project$Main$updateFromPages = F2(
 					[]));
 		}
 	});
-var _user$project$Main$PageMsg = function (a) {
-	return {ctor: 'PageMsg', _0: a};
-};
-var _user$project$Main$view = function (model) {
-	var _p1 = model.state;
-	switch (_p1.ctor) {
-		case 'Loaded':
-			return A2(
-				_elm_lang$html$Html_App$map,
-				_user$project$Main$PageMsg,
-				_user$project$Pages$view(_p1._0));
-		case 'Loading':
-			return A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Loading...')
-					]));
-		default:
-			return A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Failed to load!')
-					]));
-	}
-};
-var _user$project$Main$subscriptions = function (model) {
-	var _p2 = model.state;
-	if (_p2.ctor === 'Loaded') {
-		return A2(
-			_elm_lang$core$Platform_Sub$map,
-			_user$project$Main$PageMsg,
-			_user$project$Pages$subscriptions(_p2._0));
-	} else {
-		return _elm_lang$core$Platform_Sub$none;
-	}
-};
-var _user$project$Main$RestoreFail = function (a) {
-	return {ctor: 'RestoreFail', _0: a};
-};
-var _user$project$Main$RestoreData = function (a) {
-	return {ctor: 'RestoreData', _0: a};
-};
-var _user$project$Main$Failed = {ctor: 'Failed'};
-var _user$project$Main$Loading = {ctor: 'Loading'};
-var _user$project$Main$init = function (url) {
-	var request = A2(_evancz$elm_http$Http$get, _user$project$Main$requestDecoder, url);
-	return A2(
-		_elm_lang$core$Platform_Cmd_ops['!'],
-		{people: _elm_lang$core$Dict$empty, groups: _elm_lang$core$Dict$empty, url: url, state: _user$project$Main$Loading},
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A3(_elm_lang$core$Task$perform, _user$project$Main$RestoreFail, _user$project$Main$RestoreData, request)
-			]));
-};
-var _user$project$Main$Loaded = function (a) {
-	return {ctor: 'Loaded', _0: a};
-};
-var _user$project$Main$update = F2(
+var _user$project$Pages$update = F2(
 	function (msg, model) {
-		var _p3 = {ctor: '_Tuple2', _0: msg, _1: model.state};
-		switch (_p3._1.ctor) {
-			case 'Loaded':
-				if (_p3._0.ctor === 'PageMsg') {
-					var _p4 = A2(_user$project$Pages$update, _p3._0._0, _p3._1._0);
-					var pmodel$ = _p4._0;
-					var pcmd = _p4._1;
-					var parentMsg = _p4._2;
-					var _p5 = A2(_user$project$Main$updateFromPages, parentMsg, model);
-					var model$ = _p5._0;
-					var cmd = _p5._1;
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model$,
-							{
-								state: _user$project$Main$Loaded(pmodel$)
-							}),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PageMsg, pcmd),
-								cmd
-							]));
-				} else {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
-						_elm_lang$core$Native_List.fromArray(
-							[]));
-				}
-			case 'Loading':
-				if ((_p3._0.ctor === 'RestoreData') && (_p3._0._0.ctor === '_Tuple2')) {
-					var _p8 = _p3._0._0._0;
-					var _p7 = _p3._0._0._1;
-					var _p6 = A2(_user$project$Pages$init, _p8, _p7);
-					var pmodel = _p6._0;
-					var pcmd = _p6._1;
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						{
-							people: _p8,
-							groups: _p7,
-							url: model.url,
-							state: _user$project$Main$Loaded(pmodel)
-						},
-						_elm_lang$core$Native_List.fromArray(
-							[
-								A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$PageMsg, pcmd)
-							]));
-				} else {
-					return A2(
-						_elm_lang$core$Platform_Cmd_ops['!'],
-						model,
-						_elm_lang$core$Native_List.fromArray(
-							[]));
-				}
-			default:
+		var _p30 = msg;
+		switch (_p30.ctor) {
+			case 'Save':
+				var groups = _elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Dict$toList(
+						A2(
+							_elm_lang$core$Dict$map,
+							_elm_lang$core$Basics$always(_user$project$Data_Group$encode),
+							model.groups)));
+				var people = _elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Dict$toList(
+						A2(
+							_elm_lang$core$Dict$map,
+							_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
+							model.people)));
+				var data = _elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'people', _1: people},
+							{ctor: '_Tuple2', _0: 'groups', _1: groups}
+						]));
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_user$project$Ports$save(
+							A2(_elm_lang$core$Json_Encode$encode, 2, data))
+						]));
+			case 'Load':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_user$project$Ports$load(
+							{ctor: '_Tuple0'})
+						]));
+			case 'LoadData':
+				return A3(_user$project$Pages$reInit, _p30._0, _p30._1, model);
+			case 'LoadFail':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					_elm_lang$core$Native_List.fromArray(
 						[]));
+			case 'PersonMsg':
+				return A2(_user$project$Pages$updatePersonMsg, _p30._0, model);
+			case 'TimeMsg':
+				return A2(_user$project$Pages$updateTimeMsg, _p30._0, model);
+			case 'GroupMsg':
+				return A2(_user$project$Pages$updateGroupMsg, _p30._0, model);
+			case 'ChangePage':
+				return A2(_user$project$Pages$changePage, _p30._0, model);
+			case 'KeyDown':
+				return A2(_user$project$Pages$updateKeydown, _p30._0, model);
+			default:
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					A2(_user$project$Pages$updateKeyup, _p30._0, model),
+					_elm_lang$core$Native_List.fromArray(
+						[]));
 		}
 	});
+
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
-			init: _user$project$Main$init('./data.json'),
-			view: _user$project$Main$view,
-			update: _user$project$Main$update,
-			subscriptions: _user$project$Main$subscriptions
+			init: A2(_user$project$Pages$init, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty),
+			view: _user$project$Pages$view,
+			update: _user$project$Pages$update,
+			subscriptions: _user$project$Pages$subscriptions
 		})
 };
 

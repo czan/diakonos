@@ -8,6 +8,10 @@ import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
 import Keyboard
 import Util exposing ((!!))
+import Dict
+import Json.Encode as E
+import Json.Decode as D exposing ((:=))
+import Ports
 
 import PersonPage
 import TimePage
@@ -23,6 +27,10 @@ type Msg = PersonMsg PersonPage.Msg
          | ChangePage PageName
          | KeyDown Keyboard.KeyCode
          | KeyUp Keyboard.KeyCode
+         | Save
+         | Load
+         | LoadData Person.Dict Group.Dict
+         | LoadFail String
 
 type ParentMsg = SaveData Person.Dict Group.Dict
                | None
@@ -55,6 +63,16 @@ init people groups =
        , ctrlDown = False
        , persistedModels = { person = Nothing }
        } ! [ Cmd.map PersonMsg cmd ]
+
+reInit : Person.Dict -> Group.Dict -> Model -> (Model, Cmd Msg)
+reInit people groups model =
+    case model.page of
+        Person _ ->
+            changePage People { model | people = people, groups = groups }
+        Time _ ->
+            changePage Times { model | people = people, groups = groups }
+        Group _ ->
+            changePage Groups { model | people = people, groups = groups }
 
 updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
 updatePerson msg model =
@@ -97,6 +115,7 @@ updateKeydown key model =
         17 -> { model | ctrlDown = True } ! []
         37 -> if model.ctrlDown then changePageLeft model else (model ! [])
         39 -> if model.ctrlDown then changePageRight model else (model ! [])
+        -- 83 -> if model.ctrlDown then (update Save model) else (model ! [])
         _ -> model ! []
 
 changePageLeft : Model -> (Model, Cmd Msg)
@@ -141,42 +160,82 @@ changePage page model =
             let (pmodel, pcmd) = GroupPage.init model.people model.groups
                 model' = { model | page = Group pmodel, persistedModels = persisted }
             in model' ! [ Cmd.map GroupMsg pcmd ]
-                     
-update : Msg -> Model -> (Model, Cmd Msg, ParentMsg)
-update msg model =
-    case (msg, model.page) of
-        (PersonMsg pmsg, Person pmodel) ->
+
+updatePersonMsg : PersonPage.Msg -> Model -> (Model, Cmd Msg)
+updatePersonMsg pmsg model =
+    case model.page of
+        Person pmodel ->
             let (pmodel', pcmd, parentMsg) = PersonPage.update pmsg pmodel
                 (model', cmd, msg) = updatePerson parentMsg model
-            in { model' | page = Person pmodel' } ! [ Cmd.map PersonMsg pcmd, cmd ] !! msg
+            in { model' | page = Person pmodel' } ! [ Cmd.map PersonMsg pcmd, cmd ]
 
-        (PersonMsg _, _) ->
-            model ! [] !! None
+        _ ->
+            model ! []
 
-        (TimeMsg pmsg, Time pmodel) ->
+updateTimeMsg : TimePage.Msg -> Model -> (Model, Cmd Msg)
+updateTimeMsg pmsg model =
+    case model.page of
+        Time pmodel ->
             let (pmodel', pcmd, parentMsg) = TimePage.update pmsg pmodel
                 (model', cmd, msg) = updateTime parentMsg model
-            in { model' | page = Time pmodel' } ! [ Cmd.map TimeMsg pcmd, cmd ] !! msg
+            in { model' | page = Time pmodel' } ! [ Cmd.map TimeMsg pcmd, cmd ]
 
-        (TimeMsg _, _) ->
-            model ! [] !! None
+        _ ->
+            model ! []
 
-        (GroupMsg pmsg, Group pmodel) ->
+updateGroupMsg : GroupPage.Msg -> Model -> (Model, Cmd Msg)
+updateGroupMsg pmsg model =
+    case model.page of
+        Group pmodel ->
             let (pmodel', pcmd, parentMsg) = GroupPage.update pmsg pmodel
                 (model', cmd, msg) = updateGroup parentMsg model
-            in { model' | page = Group pmodel' } ! [ Cmd.map GroupMsg pcmd, cmd ] !! msg
+            in { model' | page = Group pmodel' } ! [ Cmd.map GroupMsg pcmd, cmd ]
 
-        (GroupMsg _, _) ->
-            model ! [] !! None
+        _ ->
+            model ! []
 
-        (ChangePage page, _) ->
-            changePage page model !! None
+                     
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+    case msg of
+        Save ->
+            let people = Dict.map (always Person.encode) model.people
+                       |> Dict.toList
+                       |> E.object
+                groups = Dict.map (always Group.encode) model.groups
+                       |> Dict.toList
+                       |> E.object
+                data = E.object [ ("people", people)
+                                   , ("groups", groups)
+                                   ]
+            in model ! [ Ports.save <| E.encode 2 data ]
 
-        (KeyDown code, _) ->
-            updateKeydown code model !! None
+        Load ->
+            model ! [ Ports.load () ]
 
-        (KeyUp code, _) ->
-            updateKeyup code model ! [] !! None
+        LoadData people groups ->
+            reInit people groups model
+
+        LoadFail _ ->
+            model ! []
+
+        PersonMsg pmsg ->
+            updatePersonMsg pmsg model
+
+        TimeMsg pmsg ->
+            updateTimeMsg pmsg model
+
+        GroupMsg pmsg ->
+            updateGroupMsg pmsg model
+
+        ChangePage page ->
+            changePage page model
+
+        KeyDown code ->
+            updateKeydown code model
+
+        KeyUp code ->
+            updateKeyup code model ! []
 
 view : Model -> Html Msg
 view model =
@@ -185,6 +244,8 @@ view model =
               [ viewNavLink People model.page
               , viewNavLink Times model.page
               , viewNavLink Groups model.page
+              , viewLink "Save" Save
+              , viewLink "Load" Load
               ]
         , viewPage model
         ]
@@ -200,6 +261,14 @@ viewNavLink page model =
         div [ classList [ ("selected", selected) ]
             , onClick (ChangePage page)
             ] [ text (toString page) ]
+
+
+viewLink : String -> Msg -> Html Msg
+viewLink str msg =
+    div [ class "management"
+        , onClick msg
+        ] [ text str ]
+
 
 viewPage : Model -> Html Msg
 viewPage model =
@@ -218,6 +287,7 @@ subscriptions model =
     Sub.batch
         [ pageSubscriptions model
         , topLevelSubscriptions model
+        , Ports.loadedData decodeValue
         ]
 
 topLevelSubscriptions : Model -> Sub Msg
@@ -225,6 +295,7 @@ topLevelSubscriptions model =
     if model.ctrlDown then
         Sub.batch [ Keyboard.downs KeyDown
                   , Keyboard.ups KeyUp
+                  , Ports.loadedData decodeValue
                   ]
     else
         Keyboard.downs KeyDown
@@ -241,3 +312,17 @@ pageSubscriptions model =
 
         Group pmodel ->
             Sub.map GroupMsg <| GroupPage.subscriptions pmodel
+
+decodeValue : E.Value -> Msg
+decodeValue value =
+    case D.decodeValue requestDecoder value of
+        Ok (people, groups) ->
+            LoadData people groups
+        Err _ ->
+            LoadFail "Couldn't read file!"
+
+requestDecoder : D.Decoder (Person.Dict, Group.Dict)
+requestDecoder =
+    D.object2 (,)
+        ("people" := D.dict Person.decode)
+        ("groups" := D.dict Group.decode)

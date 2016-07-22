@@ -44,17 +44,20 @@ validateEnoughLeaders leaders =
 
 validateLeaderFreeTimes : Timeslot -> List Person -> List String
 validateLeaderFreeTimes timeslot leaders =
-    let
-        removeTimeslot =
-            List.filter ((/=) timeslot)
-        haveCommonFreeTime leaders =
-            leaders
-                |> List.map (removeTimeslot << .free)
-                |> intersect
-                |> List.isEmpty
-                |> not
-    in
-        validate haveCommonFreeTime (always "Leaders do not have another common free time") leaders
+    if List.length leaders < 2 then
+        []
+    else
+        let
+            removeTimeslot =
+                List.filter ((/=) timeslot)
+            haveCommonFreeTime leaders =
+                leaders
+                    |> List.map (removeTimeslot << .free)
+                    |> intersect
+                    |> List.isEmpty
+                    |> not
+        in
+            validate haveCommonFreeTime (always "Leaders do not have another common free time") leaders
 
 
 validateGroup : Person.Dict -> Group -> List String
@@ -66,7 +69,7 @@ validateGroup people group =
                 |> List.filterMap (flip Dict.get people)
 
         leaders =
-            List.filter ((==) Person.Asgl << .role) members
+            List.filter ((==) Person.Leader << .role) members
 
         validators =
             [ validateEnoughLeaders leaders

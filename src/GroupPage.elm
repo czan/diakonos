@@ -85,9 +85,7 @@ hasRole role id person = person.role == role
 
 splitRoles : Person.Dict -> {leaders : Person.Dict, members : Person.Dict}
 splitRoles people =
-    { leaders = Dict.filter -- (hasRole Person.Asgl)
-          (always <| (==) Person.Asgl << .role)
-          people
+    { leaders = Dict.filter (hasRole Person.Leader) people
     , members = Dict.filter (hasRole Person.Member) people
     }
 
@@ -106,7 +104,7 @@ viewPerson hover index (id, person) =
     in div [ A.classList [ ("person", True)
                          , ("in-group", index.byPerson id /= Nothing)
                          , ("no-group", noMatchingGroups)
-                         , ("asgl", person.role == Person.Asgl)
+                         , ("leader", person.role == Person.Leader)
                          , ("highlight", highlighted)
                          ]
            , onMouseOver (Hover <| HoverPerson id)
@@ -137,7 +135,7 @@ viewGroupPerson hover group (id, person) =
                               False
         errors = validatePersonInGroup group person
     in div [ A.classList [ ("person", True)
-                         , ("asgl", person.role == Person.Asgl)
+                         , ("leader", person.role == Person.Leader)
                          , ("highlight", highlighted)
                          , ("error", not <| List.isEmpty errors)
                          ]
@@ -188,7 +186,7 @@ viewGroup hover index people (id, group) =
             , onMouseOut (Hover <| NoHover)
             ] (h1 [] [ text name ] ::
                    (Dict.toList members
-                   |> List.sortWith (\a b -> asglFirst (snd a) (snd b))
+                   |> List.sortWith (\a b -> leadersFirst (snd a) (snd b))
                    |> List.map (viewGroupPerson hover group)))
 
 
@@ -211,7 +209,7 @@ view {hover, people, groups} =
         index = Group.makeIndex groups
     in div [ A.class "group-page" ]
         [ viewGroups hover index people groups
-        , viewPeople hover index "ASGLs" leaders
+        , viewPeople hover index "Leaders" leaders
         , viewPeople hover index "Members" members
         ]
 
@@ -226,13 +224,13 @@ sortSecond compare left right =
     compare (snd left) (snd right)
 
 
-asglFirst : Person -> Person -> Order
-asglFirst left right =
+leadersFirst : Person -> Person -> Order
+leadersFirst left right =
     case (left.role, right.role) of
-        (Person.Asgl, Person.Member) ->
+        (Person.Leader, Person.Member) ->
             LT
 
-        (Person.Member, Person.Asgl) ->
+        (Person.Member, Person.Leader) ->
             GT
 
         (_, _) ->

@@ -127,7 +127,7 @@ hasRole role id person = person.role == role
 
 splitRoles : Person.Dict -> {leaders : Person.Dict, members : Person.Dict}
 splitRoles people =
-    { leaders = Dict.filter (hasRole Person.Asgl) people
+    { leaders = Dict.filter (hasRole Person.Leader) people
     , members = Dict.filter (hasRole Person.Member) people
     }
 
@@ -142,7 +142,7 @@ viewGroupPerson hover group (id, person) =
                               False
         errors = validatePersonInGroup group person
     in div [ A.classList [ ("person", True)
-                         , ("asgl", person.role == Person.Asgl)
+                         , ("leader", person.role == Person.Leader)
                          , ("highlight", highlighted)
                          , ("error", not <| List.isEmpty errors)
                          ]
@@ -174,7 +174,7 @@ viewPerson hover index (id, person) =
     in div [ A.classList [ ("person", True)
                          , ("in-group", index.byPerson id /= Nothing)
                          , ("no-group", noMatchingGroups)
-                         , ("asgl", person.role == Person.Asgl)
+                         , ("leader", person.role == Person.Leader)
                          , ("highlight", highlighted)
                          ]
            , onMouseOver (Hover <| HoverPerson id)
@@ -211,7 +211,7 @@ view model =
     in div [ A.class "time-page" ]
         [ div [ A.class "timetable" ]
               [ Timeslot.table [] <| viewTimeslot model.hover people fns ]
-        , viewPeople model.hover index "ASGLs" leaders
+        , viewPeople model.hover index "Leaders" leaders
         , viewPeople model.hover index "Members" members
         ]
 
@@ -278,13 +278,13 @@ sortSecond compare left right =
     compare (snd left) (snd right)
 
 
-asglFirst : Person -> Person -> Order
-asglFirst left right =
+leadersFirst : Person -> Person -> Order
+leadersFirst left right =
     case (left.role, right.role) of
-        (Person.Asgl, Person.Member) ->
+        (Person.Leader, Person.Member) ->
             LT
 
-        (Person.Member, Person.Asgl) ->
+        (Person.Member, Person.Leader) ->
             GT
 
         (_, _) ->
@@ -348,7 +348,7 @@ viewTimeslot hover people {leaders, members, weight, index} timeslot =
                           (g.people
                           |> Set.toList
                           |> List.concatMap lookupPerson
-                          |> List.sortWith (sortSecond asglFirst)
+                          |> List.sortWith (sortSecond leadersFirst)
                           |> List.map (viewGroupPerson hover g))
                   Nothing ->
                       [ text (toString leaderCount ++ " / " ++ toString memberCount)

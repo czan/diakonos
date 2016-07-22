@@ -3,6 +3,7 @@ module PersonForm exposing (Model, Msg, ParentMsg(..), init, update, view, extra
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Json.Decode as Json
 import Data.Person as Person exposing (Person, Gender(..), Role(..))
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..), Time)
 import Util exposing ((!!))
@@ -33,8 +34,7 @@ extract person = person
 roleFromString : String -> Maybe Role
 roleFromString input =
     case input of
-        "Howie" -> Just Howie
-        "Asgl" -> Just Asgl
+        "Leader" -> Just Leader
         "Member" -> Just Member
         _ -> Nothing
 
@@ -53,7 +53,7 @@ update msg person =
             in person' ! [] !! Save person'
 
         UpdateRole input ->
-            case roleFromString input of
+            case Debug.log "Bleep" <| roleFromString input of
                 Just role ->
                     let person' = { person | role = role }
                     in person' ! [] !! Save person'
@@ -62,7 +62,7 @@ update msg person =
                     person ! [] !! None
 
         UpdateGender input ->
-            case genderFromString input of
+            case Debug.log "bloop" <| genderFromString input of
                 Just gender ->
                     let person' = { person | gender = gender }
                     in person' ! [] !! Save person'
@@ -109,7 +109,7 @@ viewRole person =
                           , selected (person.role == role)
                           ] [ text (toString role) ]
     in
-        select [ onInput UpdateRole ] (List.map opt Person.roles)
+        select [ on "change" (Json.map UpdateRole targetValue) ] (List.map opt Person.roles)
 
 viewGender : Person -> Html Msg
 viewGender person =
@@ -119,7 +119,7 @@ viewGender person =
                             , selected (person.gender == gender)
                             ] [ text (toString gender) ]
     in
-        select [ onInput UpdateGender ] (List.map opt Person.genders)
+        select [ on "change" (Json.map UpdateGender targetValue) ] (List.map opt Person.genders)
 
 freeAt : Person -> Timeslot -> Bool
 freeAt person timeslot =

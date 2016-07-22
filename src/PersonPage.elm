@@ -55,34 +55,32 @@ init pmodel people =
 
 moveSelectionDown : Model -> (Model, Cmd a)
 moveSelectionDown model =
-    let pid (id, _) = id
-        selection = case model.selected of
+    let selection = case model.selected of
                         Just id ->
-                            people model
-                                |> List.map pid
+                            orderedPeople model
+                                |> List.map fst
                                 |> dropWhile ((/=) id)
                                 |> List.head
 
                         Nothing ->
-                            people model
-                                |> List.map pid
+                            orderedPeople model
+                                |> List.map fst
                                 |> List.head
     in updateSelection selection model
 
 moveSelectionUp : Model -> (Model, Cmd a)
 moveSelectionUp model =
-    let pid (id, _) = id
-        selection = case model.selected of
+    let selection = case model.selected of
                         Just id ->
-                            people model
-                                |> List.map pid
+                            orderedPeople model
+                                |> List.map fst
                                 |> takeWhile ((/=) id)
                                 |> List.reverse
                                 |> List.head
                                    
                         Nothing ->
-                            people model
-                                |> List.map pid
+                            orderedPeople model
+                                |> List.map fst
                                 |> List.reverse
                                 |> List.head
     in updateSelection selection model
@@ -113,9 +111,21 @@ update msg model =
             in updateSelection (Just id) model !! SavePeople people
 
         Delete id ->
-            let people = Dict.remove id model.people
-                model' = { model | people = people }
-            in updateSelection Nothing model' !! SavePeople people
+            let people' = Dict.remove id model.people
+                model' = { model | people = people' }
+                selected' =
+                    case model.selected of
+                        Just selId ->
+                            if selId == id then
+                                orderedPeople model
+                                    |> List.map fst
+                                    |> dropWhile ((/=) id)
+                                    |> List.head
+                            else
+                                model.selected
+                        Nothing ->
+                            model.selected
+            in updateSelection selected' model' !! SavePeople people'
 
 
 updateSelection : Maybe Person.Id -> Model -> (Model, Cmd a)
@@ -166,15 +176,15 @@ view model =
         [ viewList model
         , viewForm model]
 
-people : Model -> List (Person.Id, Person)
-people model =
+orderedPeople : Model -> List (Person.Id, Person)
+orderedPeople model =
     let sorted = model.people
                |> Dict.toList
                |> List.sortBy (\ (id, p) -> p.name )
         roleIs value (_, person) = (value == person.role)
-        asgls = List.filter (roleIs Person.Asgl) sorted
+        leaders = List.filter (roleIs Person.Leader) sorted
         members = List.filter (roleIs Person.Member) sorted
-    in asgls ++ members
+    in leaders ++ members
 
 viewList : Model -> Html Msg
 viewList model =
@@ -196,17 +206,17 @@ viewList model =
                                        , onClick <| Delete pid
                                        ] [ text "[ Delete ]" ]
                                    ]
-        asglList = people model
-                 |> List.filter (snd >> .role >> (==) Person.Asgl)
-                 |> List.map item
-        memberList = people model
+        leaderList = orderedPeople model
+                   |> List.filter (snd >> .role >> (==) Person.Leader)
+                   |> List.map item
+        memberList = orderedPeople model
                    |> List.filter (snd >> .role >> (==) Person.Member)
                    |> List.map item
     in div [class "person-list"]
         (List.concat
              [ [ nullItem ]
-             , [ h1 [] [ text "ASGLs" ] ]
-             , asglList
+             , [ h1 [] [ text "Leaders" ] ]
+             , leaderList
              , [ h1 [] [ text "Members" ] ]
              , memberList
              ])

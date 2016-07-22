@@ -17,12 +17,11 @@ type alias Person =
 
 type alias Dict = Dict.Dict Id Person
 
-type Role = Howie
-          | Asgl
+type Role = Leader
           | Member
 
 roles : List Role
-roles = [Howie, Asgl, Member]
+roles = [Leader, Member]
 
 type Gender = Male
             | Female
@@ -35,9 +34,8 @@ decodeRole : Json.Decoder Role
 decodeRole =
     Json.string `Json.andThen`
         (\x -> case String.toLower x of
-                   "asgl" -> Json.succeed Asgl
+                   "leader" -> Json.succeed Leader
                    "member" -> Json.succeed Member
-                   "howie" -> Json.succeed Howie
                    _ -> Json.fail "Invalid role")
 
 decodeGender : Json.Decoder Gender
