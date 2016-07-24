@@ -36,7 +36,6 @@ var handlePorts = function(app) {
   });
 
   app.ports.saveDataPort.subscribe(function(data) {
-    console.log('setting data!', data, JSON.stringify(data.people));
     localStorage.setItem('name', JSON.stringify(data.name));
     localStorage.setItem('people', JSON.stringify(data.people));
     localStorage.setItem('groups', JSON.stringify(data.groups));

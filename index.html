@@ -11,9 +11,7 @@
         <script>
          var parse = function(str) {
              try {
-                 var value = JSON.parse(str);
-                 console.log(str, value);
-                 return value;
+                 return JSON.parse(str);
              } catch (e) {
                  return {};
              }
