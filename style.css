@@ -99,16 +99,21 @@ html, body {
 
 .person-page .form {
     width: 70%;
+    height: 100%;
     padding: 20px 0;
     display: inline-block;
     vertical-align: top;
     text-align: center;
 }
 
+.person-page .form > div {
+    height: 100%;
+}
+
 .person-page .form table {
     margin: 0 auto;
     text-align: center;
-    height: 700px;
+    height: calc(100% - 70px);
 }
 
 .person-page .free {
