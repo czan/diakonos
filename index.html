@@ -9,7 +9,20 @@
         <script src="./main.js"></script>
         <script src="./native.js"></script>
         <script>
-         handlePorts(Elm.Main.fullscreen());
+         var parse = function(str) {
+             try {
+                 var value = JSON.parse(str);
+                 console.log(str, value);
+                 return value;
+             } catch (e) {
+                 return {};
+             }
+         }
+         handlePorts(Elm.Main.fullscreen({
+             name: parse(localStorage.getItem('name')),
+             people: parse(localStorage.getItem('people')),
+             groups: parse(localStorage.getItem('groups'))
+         }));
         </script>
     </body>
 </html>

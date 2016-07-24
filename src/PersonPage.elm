@@ -224,7 +224,7 @@ viewList model =
 viewForm : Model -> Html Msg
 viewForm model =
     div [ class "form" ]
-        [ (App.map FormMsg (PersonForm.view model.form)) ]
+        [ App.map FormMsg <| PersonForm.view model.form ]
 
 
 subscriptions : Model -> Sub Msg

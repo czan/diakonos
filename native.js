@@ -25,39 +25,34 @@ var scrollIntoViewIfNeeded = function(node, centerIfNeeded) {
   }
 };
 
-var printErrors = function(f) {
-  return function() {
-    try {
-      return f.apply(this, arguments);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  };
-};
-
-
 var handlePorts = function(app) {
   app.ports.scrollToVisible.subscribe(function(id) {
-    setTimeout(printErrors(function() {
+    setTimeout(function() {
       var element = document.getElementById(id);
       if (element) {
         scrollIntoViewIfNeeded(element);
       }
-    }));
+    });
   });
 
-  app.ports.save.subscribe(printErrors(function(data) {
-    var body = new Blob([data], {type: 'application/json'});
+  app.ports.saveDataPort.subscribe(function(data) {
+    console.log('setting data!', data, JSON.stringify(data.people));
+    localStorage.setItem('name', JSON.stringify(data.name));
+    localStorage.setItem('people', JSON.stringify(data.people));
+    localStorage.setItem('groups', JSON.stringify(data.groups));
+  });
+
+  app.ports.exportDataPort.subscribe(function(data) {
+    var body = new Blob([JSON.stringify(data.data)], {type: 'application/json'});
     var a = document.createElement('a');
     a.href = URL.createObjectURL(body);
-    a.download = 'faculty.json';
+    a.download = data.name + ".json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  }));
+  });
 
-  app.ports.load.subscribe(printErrors(function() {
+  app.ports.importDataPort.subscribe(function() {
     var input = document.createElement('input');
     input.type = 'file';
     document.body.appendChild(input);
@@ -66,9 +61,9 @@ var handlePorts = function(app) {
       if (files.length > 0) {
         var file = files[0],
             reader = new FileReader();
-        reader.onload = printErrors(function() {
-          app.ports.loadedData.send(JSON.parse(reader.result));
-        });
+        reader.onload = function() {
+          app.ports.importedDataPort.send(JSON.parse(reader.result));
+        };
         reader.readAsText(file);
       } else {
         console.error('Zero files selected.');
@@ -76,5 +71,5 @@ var handlePorts = function(app) {
     }, false);
     input.click();
     document.body.removeChild(input);
-  }));
+  });
 };

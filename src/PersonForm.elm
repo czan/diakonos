@@ -53,7 +53,7 @@ update msg person =
             in person' ! [] !! Save person'
 
         UpdateRole input ->
-            case Debug.log "Bleep" <| roleFromString input of
+            case roleFromString input of
                 Just role ->
                     let person' = { person | role = role }
                     in person' ! [] !! Save person'
@@ -62,7 +62,7 @@ update msg person =
                     person ! [] !! None
 
         UpdateGender input ->
-            case Debug.log "bloop" <| genderFromString input of
+            case genderFromString input of
                 Just gender ->
                     let person' = { person | gender = gender }
                     in person' ! [] !! Save person'

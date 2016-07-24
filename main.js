@@ -10017,16 +10017,72 @@ var _user$project$Ports$scrollToVisible = _elm_lang$core$Native_Platform.outgoin
 	function (v) {
 		return v;
 	});
-var _user$project$Ports$load = _elm_lang$core$Native_Platform.outgoingPort(
-	'load',
+var _user$project$Ports$exportDataPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'exportDataPort',
+	function (v) {
+		return {name: v.name, data: v.data};
+	});
+var _user$project$Ports$exportData = F2(
+	function (name, _p0) {
+		var _p1 = _p0;
+		var groups$ = _elm_lang$core$Json_Encode$object(
+			_elm_lang$core$Dict$toList(
+				A2(
+					_elm_lang$core$Dict$map,
+					_elm_lang$core$Basics$always(_user$project$Data_Group$encode),
+					_p1._1)));
+		var people$ = _elm_lang$core$Json_Encode$object(
+			_elm_lang$core$Dict$toList(
+				A2(
+					_elm_lang$core$Dict$map,
+					_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
+					_p1._0)));
+		return _user$project$Ports$exportDataPort(
+			{
+				name: name,
+				data: _elm_lang$core$Json_Encode$object(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{
+							ctor: '_Tuple2',
+							_0: 'name',
+							_1: _elm_lang$core$Json_Encode$string(name)
+						},
+							{ctor: '_Tuple2', _0: 'people', _1: people$},
+							{ctor: '_Tuple2', _0: 'groups', _1: groups$}
+						]))
+			});
+	});
+var _user$project$Ports$importDataPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'importDataPort',
 	function (v) {
 		return null;
 	});
-var _user$project$Ports$loadedData = _elm_lang$core$Native_Platform.incomingPort('loadedData', _elm_lang$core$Json_Decode$value);
-var _user$project$Ports$save = _elm_lang$core$Native_Platform.outgoingPort(
-	'save',
+var _user$project$Ports$importData = _user$project$Ports$importDataPort;
+var _user$project$Ports$importedDataPort = _elm_lang$core$Native_Platform.incomingPort('importedDataPort', _elm_lang$core$Json_Decode$value);
+var _user$project$Ports$importedData = _user$project$Ports$importedDataPort;
+var _user$project$Ports$saveDataPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveDataPort',
 	function (v) {
-		return v;
+		return {name: v.name, people: v.people, groups: v.groups};
+	});
+var _user$project$Ports$saveData = F2(
+	function (name, _p2) {
+		var _p3 = _p2;
+		var groups$ = _elm_lang$core$Json_Encode$object(
+			_elm_lang$core$Dict$toList(
+				A2(
+					_elm_lang$core$Dict$map,
+					_elm_lang$core$Basics$always(_user$project$Data_Group$encode),
+					_p3._1)));
+		var people$ = _elm_lang$core$Json_Encode$object(
+			_elm_lang$core$Dict$toList(
+				A2(
+					_elm_lang$core$Dict$map,
+					_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
+					_p3._0)));
+		return _user$project$Ports$saveDataPort(
+			{name: name, people: people$, groups: groups$});
 	});
 
 var _user$project$PersonForm$freeAt = F2(
@@ -10234,10 +10290,7 @@ var _user$project$PersonForm$update = F2(
 							[])),
 					_user$project$PersonForm$Save(person$));
 			case 'UpdateRole':
-				var _p4 = A2(
-					_elm_lang$core$Debug$log,
-					'Bleep',
-					_user$project$PersonForm$roleFromString(_p3._0));
+				var _p4 = _user$project$PersonForm$roleFromString(_p3._0);
 				if (_p4.ctor === 'Just') {
 					var person$ = _elm_lang$core$Native_Utils.update(
 						person,
@@ -10261,10 +10314,7 @@ var _user$project$PersonForm$update = F2(
 						_user$project$PersonForm$None);
 				}
 			case 'UpdateGender':
-				var _p5 = A2(
-					_elm_lang$core$Debug$log,
-					'bloop',
-					_user$project$PersonForm$genderFromString(_p3._0));
+				var _p5 = _user$project$PersonForm$genderFromString(_p3._0);
 				if (_p5.ctor === 'Just') {
 					var person$ = _elm_lang$core$Native_Utils.update(
 						person,
@@ -11652,12 +11702,13 @@ var _user$project$TimePage$update = F2(
 		}
 	});
 
-var _user$project$Pages$requestDecoder = A3(
-	_elm_lang$core$Json_Decode$object2,
-	F2(
-		function (v0, v1) {
-			return {ctor: '_Tuple2', _0: v0, _1: v1};
+var _user$project$Pages$requestDecoder = A4(
+	_elm_lang$core$Json_Decode$object3,
+	F3(
+		function (v0, v1, v2) {
+			return {ctor: '_Tuple3', _0: v0, _1: v1, _2: v2};
 		}),
+	A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
 	A2(
 		_elm_lang$core$Json_Decode_ops[':='],
 		'people',
@@ -11705,33 +11756,108 @@ var _user$project$Pages$updateKeyup = F2(
 			return model;
 		}
 	});
+var _user$project$Pages$updateGroup = F2(
+	function (msg, model) {
+		var _p2 = msg;
+		if (_p2.ctor === 'SaveGroups') {
+			var _p3 = _p2._0;
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{groups: _p3}),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_user$project$Ports$saveData,
+						model.name,
+						{ctor: '_Tuple2', _0: model.people, _1: _p3})
+					]));
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				model,
+				_elm_lang$core$Native_List.fromArray(
+					[]));
+		}
+	});
+var _user$project$Pages$updateTime = F2(
+	function (msg, model) {
+		var _p4 = msg;
+		if (_p4.ctor === 'SaveGroups') {
+			var _p5 = _p4._0;
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{groups: _p5}),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_user$project$Ports$saveData,
+						model.name,
+						{ctor: '_Tuple2', _0: model.people, _1: _p5})
+					]));
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				model,
+				_elm_lang$core$Native_List.fromArray(
+					[]));
+		}
+	});
+var _user$project$Pages$updatePerson = F2(
+	function (msg, model) {
+		var _p6 = msg;
+		if (_p6.ctor === 'SavePeople') {
+			var _p7 = _p6._0;
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{people: _p7}),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_user$project$Ports$saveData,
+						model.name,
+						{ctor: '_Tuple2', _0: _p7, _1: model.groups})
+					]));
+		} else {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				model,
+				_elm_lang$core$Native_List.fromArray(
+					[]));
+		}
+	});
 var _user$project$Pages$PersistedModels = function (a) {
 	return {person: a};
 };
-var _user$project$Pages$Model = F5(
-	function (a, b, c, d, e) {
-		return {page: a, people: b, groups: c, ctrlDown: d, persistedModels: e};
+var _user$project$Pages$Model = F6(
+	function (a, b, c, d, e, f) {
+		return {name: a, page: b, people: c, groups: d, ctrlDown: e, persistedModels: f};
 	});
 var _user$project$Pages$Groups = {ctor: 'Groups'};
 var _user$project$Pages$Times = {ctor: 'Times'};
 var _user$project$Pages$People = {ctor: 'People'};
-var _user$project$Pages$LoadFail = function (a) {
-	return {ctor: 'LoadFail', _0: a};
+var _user$project$Pages$ImportedFail = function (a) {
+	return {ctor: 'ImportedFail', _0: a};
 };
-var _user$project$Pages$LoadData = F2(
-	function (a, b) {
-		return {ctor: 'LoadData', _0: a, _1: b};
+var _user$project$Pages$ImportedData = F3(
+	function (a, b, c) {
+		return {ctor: 'ImportedData', _0: a, _1: b, _2: c};
 	});
 var _user$project$Pages$decodeValue = function (value) {
-	var _p2 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Pages$requestDecoder, value);
-	if (_p2.ctor === 'Ok') {
-		return A2(_user$project$Pages$LoadData, _p2._0._0, _p2._0._1);
+	var _p8 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Pages$requestDecoder, value);
+	if (_p8.ctor === 'Ok') {
+		return A3(_user$project$Pages$ImportedData, _p8._0._0, _p8._0._1, _p8._0._2);
 	} else {
-		return _user$project$Pages$LoadFail('Couldn\'t read file!');
+		return _user$project$Pages$ImportedFail('Couldn\'t read file!');
 	}
 };
-var _user$project$Pages$Load = {ctor: 'Load'};
-var _user$project$Pages$Save = {ctor: 'Save'};
+var _user$project$Pages$Import = {ctor: 'Import'};
+var _user$project$Pages$Export = {ctor: 'Export'};
 var _user$project$Pages$KeyUp = function (a) {
 	return {ctor: 'KeyUp', _0: a};
 };
@@ -11744,8 +11870,11 @@ var _user$project$Pages$topLevelSubscriptions = function (model) {
 			[
 				_elm_lang$keyboard$Keyboard$downs(_user$project$Pages$KeyDown),
 				_elm_lang$keyboard$Keyboard$ups(_user$project$Pages$KeyUp),
-				_user$project$Ports$loadedData(_user$project$Pages$decodeValue)
+				_user$project$Ports$importedData(_user$project$Pages$decodeValue)
 			])) : _elm_lang$keyboard$Keyboard$downs(_user$project$Pages$KeyDown);
+};
+var _user$project$Pages$UpdateName = function (a) {
+	return {ctor: 'UpdateName', _0: a};
 };
 var _user$project$Pages$ChangePage = function (a) {
 	return {ctor: 'ChangePage', _0: a};
@@ -11753,32 +11882,32 @@ var _user$project$Pages$ChangePage = function (a) {
 var _user$project$Pages$viewNavLink = F2(
 	function (page, model) {
 		var selected = function () {
-			var _p3 = {ctor: '_Tuple2', _0: model, _1: page};
-			_v3_3:
+			var _p9 = {ctor: '_Tuple2', _0: model, _1: page};
+			_v6_3:
 			do {
-				if (_p3.ctor === '_Tuple2') {
-					switch (_p3._0.ctor) {
+				if (_p9.ctor === '_Tuple2') {
+					switch (_p9._0.ctor) {
 						case 'Person':
-							if (_p3._1.ctor === 'People') {
+							if (_p9._1.ctor === 'People') {
 								return true;
 							} else {
-								break _v3_3;
+								break _v6_3;
 							}
 						case 'Time':
-							if (_p3._1.ctor === 'Times') {
+							if (_p9._1.ctor === 'Times') {
 								return true;
 							} else {
-								break _v3_3;
+								break _v6_3;
 							}
 						default:
-							if (_p3._1.ctor === 'Groups') {
+							if (_p9._1.ctor === 'Groups') {
 								return true;
 							} else {
-								break _v3_3;
+								break _v6_3;
 							}
 					}
 				} else {
-					break _v3_3;
+					break _v6_3;
 				}
 			} while(false);
 			return false;
@@ -11811,23 +11940,23 @@ var _user$project$Pages$PersonMsg = function (a) {
 	return {ctor: 'PersonMsg', _0: a};
 };
 var _user$project$Pages$viewPage = function (model) {
-	var _p4 = model.page;
-	switch (_p4.ctor) {
+	var _p10 = model.page;
+	switch (_p10.ctor) {
 		case 'Person':
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$PersonMsg,
-				_user$project$PersonPage$view(_p4._0));
+				_user$project$PersonPage$view(_p10._0));
 		case 'Time':
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$TimeMsg,
-				_user$project$TimePage$view(_p4._0));
+				_user$project$TimePage$view(_p10._0));
 		default:
 			return A2(
 				_elm_lang$html$Html_App$map,
 				_user$project$Pages$GroupMsg,
-				_user$project$GroupPage$view(_p4._0));
+				_user$project$GroupPage$view(_p10._0));
 	}
 };
 var _user$project$Pages$view = function (model) {
@@ -11850,30 +11979,40 @@ var _user$project$Pages$view = function (model) {
 						A2(_user$project$Pages$viewNavLink, _user$project$Pages$People, model.page),
 						A2(_user$project$Pages$viewNavLink, _user$project$Pages$Times, model.page),
 						A2(_user$project$Pages$viewNavLink, _user$project$Pages$Groups, model.page),
-						A2(_user$project$Pages$viewLink, 'Save', _user$project$Pages$Save),
-						A2(_user$project$Pages$viewLink, 'Load', _user$project$Pages$Load)
+						A2(
+						_elm_lang$html$Html$input,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$value(model.name),
+								_elm_lang$html$Html_Events$onInput(_user$project$Pages$UpdateName),
+								_elm_lang$html$Html_Attributes$placeholder('Faculty Name')
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(_user$project$Pages$viewLink, 'Export', _user$project$Pages$Export),
+						A2(_user$project$Pages$viewLink, 'Import', _user$project$Pages$Import)
 					])),
 				_user$project$Pages$viewPage(model)
 			]));
 };
 var _user$project$Pages$pageSubscriptions = function (model) {
-	var _p5 = model.page;
-	switch (_p5.ctor) {
+	var _p11 = model.page;
+	switch (_p11.ctor) {
 		case 'Person':
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$PersonMsg,
-				_user$project$PersonPage$subscriptions(_p5._0));
+				_user$project$PersonPage$subscriptions(_p11._0));
 		case 'Time':
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$TimeMsg,
-				_user$project$TimePage$subscriptions(_p5._0));
+				_user$project$TimePage$subscriptions(_p11._0));
 		default:
 			return A2(
 				_elm_lang$core$Platform_Sub$map,
 				_user$project$Pages$GroupMsg,
-				_user$project$GroupPage$subscriptions(_p5._0));
+				_user$project$GroupPage$subscriptions(_p11._0));
 	}
 };
 var _user$project$Pages$subscriptions = function (model) {
@@ -11882,92 +12021,9 @@ var _user$project$Pages$subscriptions = function (model) {
 			[
 				_user$project$Pages$pageSubscriptions(model),
 				_user$project$Pages$topLevelSubscriptions(model),
-				_user$project$Ports$loadedData(_user$project$Pages$decodeValue)
+				_user$project$Ports$importedData(_user$project$Pages$decodeValue)
 			]));
 };
-var _user$project$Pages$None = {ctor: 'None'};
-var _user$project$Pages$SaveData = F2(
-	function (a, b) {
-		return {ctor: 'SaveData', _0: a, _1: b};
-	});
-var _user$project$Pages$updatePerson = F2(
-	function (msg, model) {
-		var _p6 = msg;
-		if (_p6.ctor === 'SavePeople') {
-			var _p7 = _p6._0;
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{people: _p7}),
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				A2(_user$project$Pages$SaveData, _p7, model.groups));
-		} else {
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				_user$project$Pages$None);
-		}
-	});
-var _user$project$Pages$updateTime = F2(
-	function (msg, model) {
-		var _p8 = msg;
-		if (_p8.ctor === 'SaveGroups') {
-			var _p9 = _p8._0;
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{groups: _p9}),
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				A2(_user$project$Pages$SaveData, model.people, _p9));
-		} else {
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				_user$project$Pages$None);
-		}
-	});
-var _user$project$Pages$updateGroup = F2(
-	function (msg, model) {
-		var _p10 = msg;
-		if (_p10.ctor === 'SaveGroups') {
-			var _p11 = _p10._0;
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					_elm_lang$core$Native_Utils.update(
-						model,
-						{groups: _p11}),
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				A2(_user$project$Pages$SaveData, model.people, _p11));
-		} else {
-			return A2(
-				_user$project$Util_ops['!!'],
-				A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					model,
-					_elm_lang$core$Native_List.fromArray(
-						[])),
-				_user$project$Pages$None);
-		}
-	});
 var _user$project$Pages$Group = function (a) {
 	return {ctor: 'Group', _0: a};
 };
@@ -11982,7 +12038,6 @@ var _user$project$Pages$updateGroupMsg = F2(
 			var _p14 = A2(_user$project$Pages$updateGroup, parentMsg, model);
 			var model$ = _p14._0;
 			var cmd = _p14._1;
-			var msg = _p14._2;
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
 				_elm_lang$core$Native_Utils.update(
@@ -12017,7 +12072,6 @@ var _user$project$Pages$updateTimeMsg = F2(
 			var _p17 = A2(_user$project$Pages$updateTime, parentMsg, model);
 			var model$ = _p17._0;
 			var cmd = _p17._1;
-			var msg = _p17._2;
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
 				_elm_lang$core$Native_Utils.update(
@@ -12041,14 +12095,15 @@ var _user$project$Pages$updateTimeMsg = F2(
 var _user$project$Pages$Person = function (a) {
 	return {ctor: 'Person', _0: a};
 };
-var _user$project$Pages$init = F2(
-	function (people, groups) {
+var _user$project$Pages$init = F3(
+	function (name, people, groups) {
 		var _p18 = A2(_user$project$PersonPage$init, _elm_lang$core$Maybe$Nothing, people);
 		var model = _p18._0;
 		var cmd = _p18._1;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			{
+				name: name,
 				page: _user$project$Pages$Person(model),
 				people: people,
 				groups: groups,
@@ -12118,8 +12173,8 @@ var _user$project$Pages$changePage = F2(
 						]));
 		}
 	});
-var _user$project$Pages$reInit = F3(
-	function (people, groups, model) {
+var _user$project$Pages$reInit = F4(
+	function (name, people, groups, model) {
 		var _p23 = model.page;
 		switch (_p23.ctor) {
 			case 'Person':
@@ -12128,21 +12183,21 @@ var _user$project$Pages$reInit = F3(
 					_user$project$Pages$People,
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{people: people, groups: groups}));
+						{name: name, people: people, groups: groups}));
 			case 'Time':
 				return A2(
 					_user$project$Pages$changePage,
 					_user$project$Pages$Times,
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{people: people, groups: groups}));
+						{name: name, people: people, groups: groups}));
 			default:
 				return A2(
 					_user$project$Pages$changePage,
 					_user$project$Pages$Groups,
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{people: people, groups: groups}));
+						{name: name, people: people, groups: groups}));
 		}
 	});
 var _user$project$Pages$changePageLeft = function (model) {
@@ -12210,7 +12265,6 @@ var _user$project$Pages$updatePersonMsg = F2(
 			var _p29 = A2(_user$project$Pages$updatePerson, parentMsg, model);
 			var model$ = _p29._0;
 			var cmd = _p29._1;
-			var msg = _p29._2;
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
 				_elm_lang$core$Native_Utils.update(
@@ -12235,45 +12289,43 @@ var _user$project$Pages$update = F2(
 	function (msg, model) {
 		var _p30 = msg;
 		switch (_p30.ctor) {
-			case 'Save':
-				var groups = _elm_lang$core$Json_Encode$object(
-					_elm_lang$core$Dict$toList(
-						A2(
-							_elm_lang$core$Dict$map,
-							_elm_lang$core$Basics$always(_user$project$Data_Group$encode),
-							model.groups)));
-				var people = _elm_lang$core$Json_Encode$object(
-					_elm_lang$core$Dict$toList(
-						A2(
-							_elm_lang$core$Dict$map,
-							_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
-							model.people)));
-				var data = _elm_lang$core$Json_Encode$object(
+			case 'UpdateName':
+				var _p31 = _p30._0;
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						model,
+						{name: _p31}),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							{ctor: '_Tuple2', _0: 'people', _1: people},
-							{ctor: '_Tuple2', _0: 'groups', _1: groups}
+							A2(
+							_user$project$Ports$saveData,
+							_p31,
+							{ctor: '_Tuple2', _0: model.people, _1: model.groups})
 						]));
+			case 'Export':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_user$project$Ports$save(
-							A2(_elm_lang$core$Json_Encode$encode, 2, data))
+							A2(
+							_user$project$Ports$exportData,
+							model.name,
+							{ctor: '_Tuple2', _0: model.people, _1: model.groups})
 						]));
-			case 'Load':
+			case 'Import':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_user$project$Ports$load(
+							_user$project$Ports$importData(
 							{ctor: '_Tuple0'})
 						]));
-			case 'LoadData':
-				return A3(_user$project$Pages$reInit, _p30._0, _p30._1, model);
-			case 'LoadFail':
+			case 'ImportedData':
+				return A4(_user$project$Pages$reInit, _p30._0, _p30._1, _p30._2, model);
+			case 'ImportedFail':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					model,
@@ -12299,12 +12351,48 @@ var _user$project$Pages$update = F2(
 	});
 
 var _user$project$Main$main = {
-	main: _elm_lang$html$Html_App$program(
-		{
-			init: A2(_user$project$Pages$init, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty),
-			view: _user$project$Pages$view,
-			update: _user$project$Pages$update,
-			subscriptions: _user$project$Pages$subscriptions
+	main: function () {
+		var init = function (_p0) {
+			var _p1 = _p0;
+			var groups$ = A2(
+				_elm_lang$core$Result$withDefault,
+				_elm_lang$core$Dict$empty,
+				A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					_elm_lang$core$Json_Decode$dict(_user$project$Data_Group$decode),
+					_p1.groups));
+			var people$ = A2(
+				_elm_lang$core$Result$withDefault,
+				_elm_lang$core$Dict$empty,
+				A2(
+					_elm_lang$core$Json_Decode$decodeValue,
+					_elm_lang$core$Json_Decode$dict(_user$project$Data_Person$decode),
+					_p1.people));
+			var name$ = A2(
+				_elm_lang$core$Result$withDefault,
+				'',
+				A2(_elm_lang$core$Json_Decode$decodeValue, _elm_lang$core$Json_Decode$string, _p1.name));
+			return A3(_user$project$Pages$init, name$, people$, groups$);
+		};
+		return _elm_lang$html$Html_App$programWithFlags(
+			{init: init, view: _user$project$Pages$view, update: _user$project$Pages$update, subscriptions: _user$project$Pages$subscriptions});
+	}(),
+	flags: A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(_elm_lang$core$Json_Decode_ops[':='], 'groups', _elm_lang$core$Json_Decode$value),
+		function (groups) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$value),
+				function (name) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						A2(_elm_lang$core$Json_Decode_ops[':='], 'people', _elm_lang$core$Json_Decode$value),
+						function (people) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{groups: groups, name: name, people: people});
+						});
+				});
 		})
 };
 

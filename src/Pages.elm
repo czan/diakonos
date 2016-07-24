@@ -1,4 +1,4 @@
-module Pages exposing (Msg, ParentMsg(..), Model, init, update, view, subscriptions)
+module Pages exposing (Msg, Model, init, update, view, subscriptions)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -7,8 +7,6 @@ import Html.App as App
 import Data.Person as Person exposing (Person)
 import Data.Group as Group exposing (Group)
 import Keyboard
-import Util exposing ((!!))
-import Dict
 import Json.Encode as E
 import Json.Decode as D exposing ((:=))
 import Ports
@@ -25,15 +23,13 @@ type Msg = PersonMsg PersonPage.Msg
          | TimeMsg TimePage.Msg
          | GroupMsg GroupPage.Msg
          | ChangePage PageName
+         | UpdateName String
          | KeyDown Keyboard.KeyCode
          | KeyUp Keyboard.KeyCode
-         | Save
-         | Load
-         | LoadData Person.Dict Group.Dict
-         | LoadFail String
-
-type ParentMsg = SaveData Person.Dict Group.Dict
-               | None
+         | Export
+         | Import
+         | ImportedData String Person.Dict Group.Dict
+         | ImportedFail String
 
 type PageModel = Person PersonPage.Model
                | Time TimePage.Model
@@ -44,63 +40,65 @@ type alias PersistedModels =
     }
 
 type alias Model =
-    { page : PageModel
+    { name : String
+    , page : PageModel
     , people : Person.Dict
     , groups : Group.Dict
     , ctrlDown : Bool
     , persistedModels : PersistedModels
     }
 
-init : Person.Dict -> Group.Dict -> (Model, Cmd Msg)
-init people groups =
+init : String -> Person.Dict -> Group.Dict -> (Model, Cmd Msg)
+init name people groups =
     let
         (model, cmd) = PersonPage.init Nothing people
         -- (model, cmd) = TimePage.init people groups
         -- (model, cmd) = GroupPage.init people groups
-    in { page = Person model
+    in { name = name
+       , page = Person model
        , people = people
        , groups = groups
        , ctrlDown = False
        , persistedModels = { person = Nothing }
        } ! [ Cmd.map PersonMsg cmd ]
 
-reInit : Person.Dict -> Group.Dict -> Model -> (Model, Cmd Msg)
-reInit people groups model =
+reInit : String -> Person.Dict -> Group.Dict -> Model -> (Model, Cmd Msg)
+reInit name people groups model =
     case model.page of
         Person _ ->
-            changePage People { model | people = people, groups = groups }
+            changePage People { model | name = name, people = people, groups = groups }
         Time _ ->
-            changePage Times { model | people = people, groups = groups }
+            changePage Times { model | name = name, people = people, groups = groups }
         Group _ ->
-            changePage Groups { model | people = people, groups = groups }
+            changePage Groups { model | name = name, people = people, groups = groups }
 
-updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
+updatePerson : PersonPage.ParentMsg -> Model -> (Model, Cmd Msg)
 updatePerson msg model =
     case msg of
         PersonPage.SavePeople people ->
-            { model | people = people } ! [] !! SaveData people model.groups
+            { model | people = people } ! [ Ports.saveData model.name (people, model.groups) ]
 
         PersonPage.None ->
-            model ! [] !! None
+            model ! []
 
-updateTime : TimePage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
+updateTime : TimePage.ParentMsg -> Model -> (Model, Cmd Msg)
 updateTime msg model =
     case msg of
         TimePage.SaveGroups groups ->
-            { model | groups = groups } ! [] !! SaveData model.people groups
+            { model | groups = groups } ! [ Ports.saveData model.name (model.people, groups) ]
 
         TimePage.None ->
-            model ! [] !! None
+            model ! []
 
 
-updateGroup : GroupPage.ParentMsg -> Model -> (Model, Cmd Msg, ParentMsg)
+updateGroup : GroupPage.ParentMsg -> Model -> (Model, Cmd Msg)
 updateGroup msg model =
     case msg of
         GroupPage.SaveGroups groups ->
-            { model | groups = groups } ! [] !! SaveData model.people groups
+            { model | groups = groups } ! [ Ports.saveData model.name (model.people, groups) ]
 
         GroupPage.None ->
-            model ! [] !! None
+            model ! []
 
 
 updateKeyup : Keyboard.KeyCode -> Model -> Model
@@ -166,7 +164,7 @@ updatePersonMsg pmsg model =
     case model.page of
         Person pmodel ->
             let (pmodel', pcmd, parentMsg) = PersonPage.update pmsg pmodel
-                (model', cmd, msg) = updatePerson parentMsg model
+                (model', cmd) = updatePerson parentMsg model
             in { model' | page = Person pmodel' } ! [ Cmd.map PersonMsg pcmd, cmd ]
 
         _ ->
@@ -177,7 +175,7 @@ updateTimeMsg pmsg model =
     case model.page of
         Time pmodel ->
             let (pmodel', pcmd, parentMsg) = TimePage.update pmsg pmodel
-                (model', cmd, msg) = updateTime parentMsg model
+                (model', cmd) = updateTime parentMsg model
             in { model' | page = Time pmodel' } ! [ Cmd.map TimeMsg pcmd, cmd ]
 
         _ ->
@@ -188,7 +186,7 @@ updateGroupMsg pmsg model =
     case model.page of
         Group pmodel ->
             let (pmodel', pcmd, parentMsg) = GroupPage.update pmsg pmodel
-                (model', cmd, msg) = updateGroup parentMsg model
+                (model', cmd) = updateGroup parentMsg model
             in { model' | page = Group pmodel' } ! [ Cmd.map GroupMsg pcmd, cmd ]
 
         _ ->
@@ -198,25 +196,19 @@ updateGroupMsg pmsg model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Save ->
-            let people = Dict.map (always Person.encode) model.people
-                       |> Dict.toList
-                       |> E.object
-                groups = Dict.map (always Group.encode) model.groups
-                       |> Dict.toList
-                       |> E.object
-                data = E.object [ ("people", people)
-                                   , ("groups", groups)
-                                   ]
-            in model ! [ Ports.save <| E.encode 2 data ]
+        UpdateName name ->
+            { model | name = name } ! [ Ports.saveData name (model.people, model.groups) ]
 
-        Load ->
-            model ! [ Ports.load () ]
+        Export ->
+            model ! [ Ports.exportData model.name (model.people, model.groups) ]
 
-        LoadData people groups ->
-            reInit people groups model
+        Import ->
+            model ! [ Ports.importData () ]
 
-        LoadFail _ ->
+        ImportedData name people groups ->
+            reInit name people groups model
+
+        ImportedFail _ ->
             model ! []
 
         PersonMsg pmsg ->
@@ -244,8 +236,13 @@ view model =
               [ viewNavLink People model.page
               , viewNavLink Times model.page
               , viewNavLink Groups model.page
-              , viewLink "Save" Save
-              , viewLink "Load" Load
+              , input [ value model.name
+                      , onInput UpdateName
+                      , placeholder "Faculty Name"
+                      ]
+                  []
+              , viewLink "Export" Export
+              , viewLink "Import" Import
               ]
         , viewPage model
         ]
@@ -287,7 +284,7 @@ subscriptions model =
     Sub.batch
         [ pageSubscriptions model
         , topLevelSubscriptions model
-        , Ports.loadedData decodeValue
+        , Ports.importedData decodeValue
         ]
 
 topLevelSubscriptions : Model -> Sub Msg
@@ -295,7 +292,7 @@ topLevelSubscriptions model =
     if model.ctrlDown then
         Sub.batch [ Keyboard.downs KeyDown
                   , Keyboard.ups KeyUp
-                  , Ports.loadedData decodeValue
+                  , Ports.importedData decodeValue
                   ]
     else
         Keyboard.downs KeyDown
@@ -316,13 +313,14 @@ pageSubscriptions model =
 decodeValue : E.Value -> Msg
 decodeValue value =
     case D.decodeValue requestDecoder value of
-        Ok (people, groups) ->
-            LoadData people groups
+        Ok (name, people, groups) ->
+            ImportedData name people groups
         Err _ ->
-            LoadFail "Couldn't read file!"
+            ImportedFail "Couldn't read file!"
 
-requestDecoder : D.Decoder (Person.Dict, Group.Dict)
+requestDecoder : D.Decoder (String, Person.Dict, Group.Dict)
 requestDecoder =
-    D.object2 (,)
+    D.object3 (,,)
+        ("name" := D.string)
         ("people" := D.dict Person.decode)
         ("groups" := D.dict Group.decode)
