@@ -17,7 +17,7 @@ days : List Day
 days = [Monday, Tuesday, Wednesday, Thursday, Friday]
 
 times : List Time
-times = [8 .. 16]
+times = [8 .. 17]
 
 all : List Timeslot
 all = List.concatMap (\a -> List.map (\b -> (a,b)) times) days
