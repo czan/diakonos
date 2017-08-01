@@ -228,13 +228,35 @@ html, body {
     height: 1%;
 }
 
-.time-page .person-list {
+.time-page .right-side {
     display: inline-block;
     vertical-align: top;
     padding: 0;
     margin: 0;
     height: calc(100% - 31px);
-    width: 20%;
+    width: 40%;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.time-page .right-side .solver {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    height: calc(30% - 31px);
+    width: 100%;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.time-page .right-side .person-list {
+    display: inline-block;
+    vertical-align: top;
+    padding: 0;
+    margin: 0;
+    height: calc(100% - 31px);
+    width: 50%;
     overflow-y: auto;
     text-align: center;
 }

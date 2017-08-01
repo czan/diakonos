@@ -215,8 +215,73 @@ view model =
     in div [ A.class "time-page" ]
         [ div [ A.class "timetable" ]
               [ Timeslot.table [] <| viewTimeslot model.hover people fns ]
-        , viewPeople model.hover index "Leaders" leaders
-        , viewPeople model.hover index "Members" members
+        , div [A.class "right-side" ]
+            [ div [ A.class "solver" ]
+                  [ label 
+                    [A.for "groups"] 
+                    [text "How many groups do you want?"]
+                  , select  
+                    [ A.id "groups", A.name "How many groups do you want?"] 
+                    [option 
+                      [ A.value "1" ] 
+                      [text "1" ]
+                    , option 
+                      [ A.value "2" ] 
+                      [text "2" ]
+                    , option 
+                      [ A.value "3" ] 
+                      [text "3" ]
+                    , option 
+                      [ A.value "4" ] 
+                      [text "4" ]
+                    , option 
+                      [ A.value "5" ] 
+                      [text "5" ]
+                    , option 
+                      [ A.value "6" ] 
+                      [text "6" ]
+                    ]
+                  , p [] []
+                  , label 
+                    [A.for "mixed"] 
+                    [text "Allow leader genders not to match member genders?"]
+                  , select 
+                    [ A.id "mixed" ] 
+                    [option 
+                      [ A.value "yes" ] 
+                      [text "Yes" ]
+                    , option 
+                      [ A.value "no" ] 
+                      [text "No" ]
+                    ]
+                  , p [] []
+                  , label 
+                    [A.for "leave-out"] 
+                    [text "How many people are you willing to leave out?"]
+                  , select 
+                    [ A.id "leave-out" ] 
+                    [option 
+                      [ A.value "1"] 
+                      [text "1" ]
+                    , option 
+                      [ A.value "2"] 
+                      [text "2" ]
+                    , option 
+                      [ A.value "3"] 
+                      [text "3" ]
+                    , option 
+                      [ A.value "4"] 
+                      [text "4" ]
+                    , option 
+                      [ A.value "5"] 
+                      [text "5" ]
+                    ]
+                  , p [] []
+                  , button [A.class "solve", onClick solveGroups] [text "find groups"]
+                  ]
+            , viewPeople model.hover index "Leaders" leaders
+            , viewPeople model.hover index "Members" members
+            ]
         ]
 
 
