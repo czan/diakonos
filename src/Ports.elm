@@ -1,4 +1,4 @@
-port module Ports exposing (exportData, importData, importedData, saveData, scrollToVisible)
+port module Ports exposing (exportData, importData, importedData, saveData, scrollToVisible, runSolver, solverSolution)
 
 import Json.Encode as E exposing (Value)
 import Data.Person as Person
@@ -40,3 +40,19 @@ saveData name (people, groups) =
                     , people = people'
                     , groups = groups'
                     }
+
+port runSolverPort : { people : Value, numGroups : Int, mixed : Bool, leftOut : Int } -> Cmd a
+
+runSolver : Person.Dict -> Int -> Bool -> Int -> Cmd a
+runSolver people num mixed leftOut =
+    let people' = E.object <| Dict.toList <| Dict.map (always Person.encode) people
+    in runSolverPort { people = people'
+                     , numGroups = num
+                     , mixed = mixed
+                     , leftOut = leftOut
+                     }
+
+port solverSolutionPort : (Value -> msg) -> Sub msg
+
+solverSolution : (Value -> msg) -> Sub msg
+solverSolution = solverSolutionPort

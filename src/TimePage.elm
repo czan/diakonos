@@ -2,7 +2,7 @@ module TimePage exposing (Model, Msg, ParentMsg(..), init, update, view, subscri
 
 import Html exposing (..)
 import Html.Attributes as A
-import Html.Events exposing (onMouseOver, onMouseOut, onClick)
+import Html.Events exposing (onMouseOver, onMouseOut, onClick, on, targetValue)
 import Dict exposing (Dict)
 import Set exposing (Set)
 import Random
@@ -10,8 +10,10 @@ import Validation exposing (validateGroup, validatePersonInGroup)
 import Data.Group as Group exposing (Group)
 import Data.Person as Person exposing (Person)
 import Data.Timeslot as Timeslot exposing (Timeslot, Day(..))
+import Json.Decode as D exposing ((:=))
 import Util exposing ((!!), hex, idGenerator, isJust)
 import DragAndDrop exposing (draggable, dragData, dropTarget, onDrop)
+import Ports exposing (runSolver, solverSolution)
 import String
 
 
@@ -24,6 +26,10 @@ type alias Model =
     { groups : Group.Dict
     , people : Person.Dict
     , hover : HoverState
+    , suggestions : List (List Timeslot)
+    , numGroups : Int
+    , mixed : Bool
+    , leftOut : Int
     }
 
 
@@ -34,6 +40,12 @@ type Msg
     | Delete Timeslot
     | Move Group.Id Timeslot
     | Hover HoverState
+    | RunSolver
+    | HandleSuggestions (List (List Timeslot))
+    | UpdateNumGroups Int
+    | UpdateMixed Bool
+    | UpdateLeftOut Int
+    | Noop
 
 
 type ParentMsg
@@ -46,6 +58,10 @@ init people groups =
     { groups = groups
     , people = people
     , hover = NoHover
+    , suggestions = []
+    , numGroups = 1
+    , mixed = False
+    , leftOut = 0
     } ! []
 
 
@@ -119,6 +135,24 @@ update msg model =
 
            Hover state ->
                { model | hover = state } ! [] !! None
+
+           RunSolver ->
+               model ! [ runSolver model.people model.numGroups model.mixed model.leftOut ] !! None
+
+           HandleSuggestions suggestions ->
+               { model | suggestions = suggestions } ! [] !! None
+
+           UpdateNumGroups num ->
+               { model | numGroups = num } ! [] !! None
+
+           UpdateMixed mixed ->
+               { model | mixed = mixed } ! [] !! None
+
+           UpdateLeftOut leftOut ->
+               { model | leftOut = leftOut } ! [] !! None
+
+           Noop ->
+               model ! [] !! None
 
 
 hasRole : Person.Role -> Person.Id -> Person -> Bool
@@ -200,6 +234,24 @@ viewPeople hover index title people =
                |> List.sortBy (List.length << .free << snd)
                |> List.map (viewPerson hover index)))
 
+interpose : a -> List a -> List a
+interpose sep list =
+    case list of
+        [] -> []
+        [x] -> [x]
+        (x :: xs) -> x :: sep :: interpose sep xs
+
+viewSolutions : List (List Timeslot) -> Html Msg
+viewSolutions options =
+    case options of
+        [] -> div [] [ text "No solutions found" ]
+        _ ->
+            let
+                viewTimeslot (day, time) = text (toString day ++ " " ++ toString time)
+                viewGroupTimes times = li [] <| interpose (text ", ") <| List.map viewTimeslot times
+            in
+                ul [] <| List.map viewGroupTimes options
+
 
 view : Model -> Html Msg
 view model =
@@ -212,72 +264,45 @@ view model =
               , members = peoplePerTimeslot <| Dict.values members
               , index = index
               }
+        numGroups value = Result.withDefault Noop (Result.map UpdateNumGroups <| String.toInt value)
+        mixedToBool val = val == "yes"
+        leftOut value = Result.withDefault Noop (Result.map UpdateLeftOut <| String.toInt value)
     in div [ A.class "time-page" ]
         [ div [ A.class "timetable" ]
               [ Timeslot.table [] <| viewTimeslot model.hover people fns ]
-        , div [A.class "right-side" ]
+        , div [ A.class "right-side" ]
             [ div [ A.class "solver" ]
-                  [ label 
-                    [A.for "groups"] 
-                    [text "How many groups do you want?"]
-                  , select  
-                    [ A.id "groups", A.name "How many groups do you want?"] 
-                    [option 
-                      [ A.value "1" ] 
-                      [text "1" ]
-                    , option 
-                      [ A.value "2" ] 
-                      [text "2" ]
-                    , option 
-                      [ A.value "3" ] 
-                      [text "3" ]
-                    , option 
-                      [ A.value "4" ] 
-                      [text "4" ]
-                    , option 
-                      [ A.value "5" ] 
-                      [text "5" ]
-                    , option 
-                      [ A.value "6" ] 
-                      [text "6" ]
-                    ]
-                  , p [] []
-                  , label 
-                    [A.for "mixed"] 
-                    [text "Allow leader genders not to match member genders?"]
-                  , select 
-                    [ A.id "mixed" ] 
-                    [option 
-                      [ A.value "yes" ] 
-                      [text "Yes" ]
-                    , option 
-                      [ A.value "no" ] 
-                      [text "No" ]
-                    ]
-                  , p [] []
-                  , label 
-                    [A.for "leave-out"] 
-                    [text "How many people are you willing to leave out?"]
-                  , select 
-                    [ A.id "leave-out" ] 
-                    [option 
-                      [ A.value "1"] 
-                      [text "1" ]
-                    , option 
-                      [ A.value "2"] 
-                      [text "2" ]
-                    , option 
-                      [ A.value "3"] 
-                      [text "3" ]
-                    , option 
-                      [ A.value "4"] 
-                      [text "4" ]
-                    , option 
-                      [ A.value "5"] 
-                      [text "5" ]
-                    ]
-                  , p [] []
-                  , button [A.class "solve", onClick solveGroups] [text "find groups"]
+                  [ div []
+                        [ label [A.for "groups"] [ text "How many groups do you want?"]
+                        , select [ A.id "groups", on "change" (D.map numGroups targetValue) ] 
+                            [ option [ A.value "1" ] [text "1" ]
+                            , option [ A.value "2" ] [text "2" ]
+                            , option [ A.value "3" ] [text "3" ]
+                            , option [ A.value "4" ] [text "4" ]
+                            , option [ A.value "5" ] [text "5" ]
+                            , option [ A.value "6" ] [text "6" ]
+                            ]
+                        ]
+                  , div []
+                      [ label [A.for "mixed"] [ text "Allow leader genders not to match member genders?"]
+                      , select [ A.id "mixed", on "change" (D.map (UpdateMixed << mixedToBool) targetValue) ] 
+                          [ option [ A.value "yes" ] [text "Yes" ]
+                          , option [ A.value "no" ] [text "No" ]
+                          ]
+                      ]
+                  , div []
+                      [ label [A.for "leave-out"] [ text "How many people are you willing to leave out?"]
+                      , select [ A.id "leave-out", on "change" (D.map leftOut targetValue) ] 
+                          [ option [ A.value "0"] [text "0" ]
+                          , option [ A.value "1"] [text "1" ]
+                          , option [ A.value "2"] [text "2" ]
+                          , option [ A.value "3"] [text "3" ]
+                          , option [ A.value "4"] [text "4" ]
+                          , option [ A.value "5"] [text "5" ]
+                          ]
+                      ]
+                  , div [] [ button [A.class "solve", onClick RunSolver] [text "suggest times"] ]
+                  , viewSolutions model.suggestions
                   ]
             , viewPeople model.hover index "Leaders" leaders
             , viewPeople model.hover index "Members" members
@@ -426,4 +451,27 @@ viewTimeslot hover people {leaders, members, weight, index} timeslot =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    solverSolution decodeSolution
+
+        
+decodeSolution : D.Value -> Msg
+decodeSolution value =
+    case D.decodeValue solutionDecoder value of
+        Ok suggestions ->
+            HandleSuggestions suggestions
+        Err _ ->
+            Noop
+
+
+solutionDecoder : D.Decoder (List (List Timeslot))
+solutionDecoder =
+    let
+        intToTimeslot i =
+            if i < 10 then D.succeed (Monday, i + 7)
+            else if i < 20 then D.succeed (Tuesday, i - 10 + 7)
+            else if i < 30 then D.succeed (Wednesday, i - 20 + 7)
+            else if i < 40 then D.succeed (Thursday, i - 30 + 7)
+            else if i < 50 then D.succeed (Friday, i - 40 + 7)
+            else D.fail "Invalid group time returned"
+    in
+        D.list <| D.list <| ("time" := D.int `D.andThen` intToTimeslot)

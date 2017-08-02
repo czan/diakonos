@@ -10469,6 +10469,24 @@ var _user$project$Ports$saveData = F2(
 		return _user$project$Ports$saveDataPort(
 			{name: name, people: people$, groups: groups$});
 	});
+var _user$project$Ports$runSolverPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'runSolverPort',
+	function (v) {
+		return {people: v.people, numGroups: v.numGroups, mixed: v.mixed, leftOut: v.leftOut};
+	});
+var _user$project$Ports$runSolver = F4(
+	function (people, num, mixed, leftOut) {
+		var people$ = _elm_lang$core$Json_Encode$object(
+			_elm_lang$core$Dict$toList(
+				A2(
+					_elm_lang$core$Dict$map,
+					_elm_lang$core$Basics$always(_user$project$Data_Person$encode),
+					people)));
+		return _user$project$Ports$runSolverPort(
+			{people: people$, numGroups: num, mixed: mixed, leftOut: leftOut});
+	});
+var _user$project$Ports$solverSolutionPort = _elm_lang$core$Native_Platform.incomingPort('solverSolutionPort', _elm_lang$core$Json_Decode$value);
+var _user$project$Ports$solverSolution = _user$project$Ports$solverSolutionPort;
 
 var _user$project$PersonForm$freeAt = F2(
 	function (person, timeslot) {
@@ -11321,9 +11339,22 @@ var _user$project$PersonPage$updateFromForm = F2(
 		}
 	});
 
-var _user$project$TimePage$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
+var _user$project$TimePage$solutionDecoder = function () {
+	var intToTimeslot = function (i) {
+		return (_elm_lang$core$Native_Utils.cmp(i, 10) < 0) ? _elm_lang$core$Json_Decode$succeed(
+			{ctor: '_Tuple2', _0: _user$project$Data_Timeslot$Monday, _1: i + 7}) : ((_elm_lang$core$Native_Utils.cmp(i, 20) < 0) ? _elm_lang$core$Json_Decode$succeed(
+			{ctor: '_Tuple2', _0: _user$project$Data_Timeslot$Tuesday, _1: (i - 10) + 7}) : ((_elm_lang$core$Native_Utils.cmp(i, 30) < 0) ? _elm_lang$core$Json_Decode$succeed(
+			{ctor: '_Tuple2', _0: _user$project$Data_Timeslot$Wednesday, _1: (i - 20) + 7}) : ((_elm_lang$core$Native_Utils.cmp(i, 40) < 0) ? _elm_lang$core$Json_Decode$succeed(
+			{ctor: '_Tuple2', _0: _user$project$Data_Timeslot$Thursday, _1: (i - 30) + 7}) : ((_elm_lang$core$Native_Utils.cmp(i, 50) < 0) ? _elm_lang$core$Json_Decode$succeed(
+			{ctor: '_Tuple2', _0: _user$project$Data_Timeslot$Friday, _1: (i - 40) + 7}) : _elm_lang$core$Json_Decode$fail('Invalid group time returned')))));
+	};
+	return _elm_lang$core$Json_Decode$list(
+		_elm_lang$core$Json_Decode$list(
+			A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(_elm_lang$core$Json_Decode_ops[':='], 'time', _elm_lang$core$Json_Decode$int),
+				intToTimeslot)));
+}();
 var _user$project$TimePage$leadersFirst = F2(
 	function (left, right) {
 		var _p0 = {ctor: '_Tuple2', _0: left.role, _1: right.role};
@@ -11460,6 +11491,67 @@ var _user$project$TimePage$peopleWeights = function (people) {
 				values));
 	};
 };
+var _user$project$TimePage$interpose = F2(
+	function (sep, list) {
+		var _p2 = list;
+		if (_p2.ctor === '[]') {
+			return _elm_lang$core$Native_List.fromArray(
+				[]);
+		} else {
+			if (_p2._1.ctor === '[]') {
+				return _elm_lang$core$Native_List.fromArray(
+					[_p2._0]);
+			} else {
+				return A2(
+					_elm_lang$core$List_ops['::'],
+					_p2._0,
+					A2(
+						_elm_lang$core$List_ops['::'],
+						sep,
+						A2(_user$project$TimePage$interpose, sep, _p2._1)));
+			}
+		}
+	});
+var _user$project$TimePage$viewSolutions = function (options) {
+	var _p3 = options;
+	if (_p3.ctor === '[]') {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('No solutions found')
+				]));
+	} else {
+		var viewTimeslot = function (_p4) {
+			var _p5 = _p4;
+			return _elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(_p5._0),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						' ',
+						_elm_lang$core$Basics$toString(_p5._1))));
+		};
+		var viewGroupTimes = function (times) {
+			return A2(
+				_elm_lang$html$Html$li,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				A2(
+					_user$project$TimePage$interpose,
+					_elm_lang$html$Html$text(', '),
+					A2(_elm_lang$core$List$map, viewTimeslot, times)));
+		};
+		return A2(
+			_elm_lang$html$Html$ul,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			A2(_elm_lang$core$List$map, viewGroupTimes, options));
+	}
+};
 var _user$project$TimePage$hasRole = F3(
 	function (role, id, person) {
 		return _elm_lang$core$Native_Utils.eq(person.role, role);
@@ -11483,9 +11575,9 @@ var _user$project$TimePage$fixGroup = F4(
 			group,
 			{people: people$});
 	});
-var _user$project$TimePage$Model = F3(
-	function (a, b, c) {
-		return {groups: a, people: b, hover: c};
+var _user$project$TimePage$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {groups: a, people: b, hover: c, suggestions: d, numGroups: e, mixed: f, leftOut: g};
 	});
 var _user$project$TimePage$TimeslotFunctions = F4(
 	function (a, b, c, d) {
@@ -11496,7 +11588,16 @@ var _user$project$TimePage$init = F2(
 	function (people, groups) {
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			{groups: groups, people: people, hover: _user$project$TimePage$NoHover},
+			{
+				groups: groups,
+				people: people,
+				hover: _user$project$TimePage$NoHover,
+				suggestions: _elm_lang$core$Native_List.fromArray(
+					[]),
+				numGroups: 1,
+				mixed: false,
+				leftOut: 0
+			},
 			_elm_lang$core$Native_List.fromArray(
 				[]));
 	});
@@ -11506,25 +11607,50 @@ var _user$project$TimePage$HoverTimeslot = function (a) {
 var _user$project$TimePage$HoverPerson = function (a) {
 	return {ctor: 'HoverPerson', _0: a};
 };
+var _user$project$TimePage$Noop = {ctor: 'Noop'};
+var _user$project$TimePage$UpdateLeftOut = function (a) {
+	return {ctor: 'UpdateLeftOut', _0: a};
+};
+var _user$project$TimePage$UpdateMixed = function (a) {
+	return {ctor: 'UpdateMixed', _0: a};
+};
+var _user$project$TimePage$UpdateNumGroups = function (a) {
+	return {ctor: 'UpdateNumGroups', _0: a};
+};
+var _user$project$TimePage$HandleSuggestions = function (a) {
+	return {ctor: 'HandleSuggestions', _0: a};
+};
+var _user$project$TimePage$decodeSolution = function (value) {
+	var _p6 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$TimePage$solutionDecoder, value);
+	if (_p6.ctor === 'Ok') {
+		return _user$project$TimePage$HandleSuggestions(_p6._0);
+	} else {
+		return _user$project$TimePage$Noop;
+	}
+};
+var _user$project$TimePage$subscriptions = function (model) {
+	return _user$project$Ports$solverSolution(_user$project$TimePage$decodeSolution);
+};
+var _user$project$TimePage$RunSolver = {ctor: 'RunSolver'};
 var _user$project$TimePage$Hover = function (a) {
 	return {ctor: 'Hover', _0: a};
 };
 var _user$project$TimePage$viewGroupPerson = F3(
-	function (hover, group, _p2) {
-		var _p3 = _p2;
-		var _p6 = _p3._1;
-		var _p5 = _p3._0;
-		var errors = A2(_user$project$Validation$validatePersonInGroup, group, _p6);
+	function (hover, group, _p7) {
+		var _p8 = _p7;
+		var _p11 = _p8._1;
+		var _p10 = _p8._0;
+		var errors = A2(_user$project$Validation$validatePersonInGroup, group, _p11);
 		var highlighted = function () {
-			var _p4 = hover;
-			if (_p4.ctor === 'HoverTimeslot') {
+			var _p9 = hover;
+			if (_p9.ctor === 'HoverTimeslot') {
 				return A2(
 					_elm_lang$core$List$any,
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
-						})(_p4._0),
-					_p6.free);
+						})(_p9._0),
+					_p11.free);
 			} else {
 				return false;
 			}
@@ -11540,7 +11666,7 @@ var _user$project$TimePage$viewGroupPerson = F3(
 							{
 							ctor: '_Tuple2',
 							_0: 'leader',
-							_1: _elm_lang$core$Native_Utils.eq(_p6.role, _user$project$Data_Person$Leader)
+							_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Leader)
 						},
 							{ctor: '_Tuple2', _0: 'highlight', _1: highlighted},
 							{
@@ -11552,7 +11678,7 @@ var _user$project$TimePage$viewGroupPerson = F3(
 						])),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$TimePage$Hover(
-						_user$project$TimePage$HoverPerson(_p5))),
+						_user$project$TimePage$HoverPerson(_p10))),
 					_elm_lang$html$Html_Events$onMouseOut(
 					_user$project$TimePage$Hover(_user$project$TimePage$NoHover))
 				]),
@@ -11566,7 +11692,7 @@ var _user$project$TimePage$viewGroupPerson = F3(
 								_elm_lang$core$Native_List.fromArray(
 								[
 									_user$project$DragAndDrop$draggable(true),
-									A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p5)
+									A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p10)
 								]),
 								_elm_lang$core$List$isEmpty(errors) ? _elm_lang$core$Native_List.fromArray(
 								[]) : _elm_lang$core$Native_List.fromArray(
@@ -11577,25 +11703,25 @@ var _user$project$TimePage$viewGroupPerson = F3(
 							])),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p6.name)
+							_elm_lang$html$Html$text(_p11.name)
 						]))
 				]));
 	});
 var _user$project$TimePage$viewPerson = F3(
-	function (hover, index, _p7) {
-		var _p8 = _p7;
-		var _p11 = _p8._1;
-		var _p10 = _p8._0;
+	function (hover, index, _p12) {
+		var _p13 = _p12;
+		var _p16 = _p13._1;
+		var _p15 = _p13._0;
 		var highlighted = function () {
-			var _p9 = hover;
-			if (_p9.ctor === 'HoverTimeslot') {
+			var _p14 = hover;
+			if (_p14.ctor === 'HoverTimeslot') {
 				return A2(
 					_elm_lang$core$List$any,
 					F2(
 						function (x, y) {
 							return _elm_lang$core$Native_Utils.eq(x, y);
-						})(_p9._0),
-					_p11.free);
+						})(_p14._0),
+					_p16.free);
 			} else {
 				return false;
 			}
@@ -11606,7 +11732,7 @@ var _user$project$TimePage$viewPerson = F3(
 				function (x, y) {
 					return _elm_lang$core$Native_Utils.eq(x, y);
 				})(_elm_lang$core$Maybe$Nothing),
-			A2(_elm_lang$core$List$map, index.byTimeslot, _p11.free));
+			A2(_elm_lang$core$List$map, index.byTimeslot, _p16.free));
 		return A2(
 			_elm_lang$html$Html$div,
 			A2(
@@ -11621,27 +11747,27 @@ var _user$project$TimePage$viewPerson = F3(
 								ctor: '_Tuple2',
 								_0: 'in-group',
 								_1: !_elm_lang$core$Native_Utils.eq(
-									index.byPerson(_p10),
+									index.byPerson(_p15),
 									_elm_lang$core$Maybe$Nothing)
 							},
 								{ctor: '_Tuple2', _0: 'no-group', _1: noMatchingGroups},
 								{
 								ctor: '_Tuple2',
 								_0: 'leader',
-								_1: _elm_lang$core$Native_Utils.eq(_p11.role, _user$project$Data_Person$Leader)
+								_1: _elm_lang$core$Native_Utils.eq(_p16.role, _user$project$Data_Person$Leader)
 							},
 								{ctor: '_Tuple2', _0: 'highlight', _1: highlighted}
 							])),
 						_elm_lang$html$Html_Events$onMouseOver(
 						_user$project$TimePage$Hover(
-							_user$project$TimePage$HoverPerson(_p10))),
+							_user$project$TimePage$HoverPerson(_p15))),
 						_elm_lang$html$Html_Events$onMouseOut(
 						_user$project$TimePage$Hover(_user$project$TimePage$NoHover))
 					]),
 				noMatchingGroups ? _elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html_Attributes$title(
-						A2(_elm_lang$core$Basics_ops['++'], _p11.name, ' is not free for any groups'))
+						A2(_elm_lang$core$Basics_ops['++'], _p16.name, ' is not free for any groups'))
 					]) : _elm_lang$core$Native_List.fromArray(
 					[])),
 			_elm_lang$core$Native_List.fromArray(
@@ -11651,11 +11777,11 @@ var _user$project$TimePage$viewPerson = F3(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_user$project$DragAndDrop$draggable(true),
-							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p10)
+							A2(_user$project$DragAndDrop$dragData, _user$project$Data_Person$idDrag, _p15)
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p11.name)
+							_elm_lang$html$Html$text(_p16.name)
 						]))
 				]));
 	});
@@ -11694,20 +11820,20 @@ var _user$project$TimePage$viewPeople = F4(
 					A2(_user$project$TimePage$viewPerson, hover, index),
 					A2(
 						_elm_lang$core$List$sortBy,
-						function (_p12) {
+						function (_p17) {
 							return _elm_lang$core$List$length(
 								function (_) {
 									return _.free;
 								}(
-									_elm_lang$core$Basics$snd(_p12)));
+									_elm_lang$core$Basics$snd(_p17)));
 						},
 						A2(
 							_elm_lang$core$List$sortBy,
-							function (_p13) {
+							function (_p18) {
 								return function (_) {
 									return _.name;
 								}(
-									_elm_lang$core$Basics$snd(_p13));
+									_elm_lang$core$Basics$snd(_p18));
 							},
 							_elm_lang$core$Dict$toList(people))))));
 	});
@@ -11720,44 +11846,44 @@ var _user$project$TimePage$Add = F2(
 		return {ctor: 'Add', _0: a, _1: b};
 	});
 var _user$project$TimePage$viewTimeslot = F4(
-	function (hover, people, _p14, timeslot) {
-		var _p15 = _p14;
-		var _p23 = _p15.weight;
-		var _p22 = _p15.index;
+	function (hover, people, _p19, timeslot) {
+		var _p20 = _p19;
+		var _p28 = _p20.weight;
+		var _p27 = _p20.index;
 		var errors = A2(
 			_elm_lang$core$Maybe$withDefault,
 			_elm_lang$core$Native_List.fromArray(
 				[]),
 			A2(
 				_elm_lang$core$Maybe$map,
-				function (_p16) {
+				function (_p21) {
 					return A2(
 						_user$project$Validation$validateGroup,
 						people,
-						_elm_lang$core$Basics$snd(_p16));
+						_elm_lang$core$Basics$snd(_p21));
 				},
-				_p22.byTimeslot(timeslot)));
+				_p27.byTimeslot(timeslot)));
 		var highlighted = function () {
-			var _p17 = hover;
-			if (_p17.ctor === 'HoverPerson') {
+			var _p22 = hover;
+			if (_p22.ctor === 'HoverPerson') {
 				return A2(
 					_elm_lang$core$Maybe$withDefault,
 					false,
 					A2(
 						_elm_lang$core$Maybe$map,
 						A2(_elm_lang$core$Basics$flip, _user$project$TimePage$freeAt, timeslot),
-						A2(_elm_lang$core$Dict$get, _p17._0, people)));
+						A2(_elm_lang$core$Dict$get, _p22._0, people)));
 			} else {
 				return false;
 			}
 		}();
-		var group = _p22.byTimeslot(timeslot);
+		var group = _p27.byTimeslot(timeslot);
 		var lookupPerson = function (id) {
-			var _p18 = A2(_elm_lang$core$Dict$get, id, people);
-			if (_p18.ctor === 'Just') {
+			var _p23 = A2(_elm_lang$core$Dict$get, id, people);
+			if (_p23.ctor === 'Just') {
 				return _elm_lang$core$Native_List.fromArray(
 					[
-						{ctor: '_Tuple2', _0: id, _1: _p18._0}
+						{ctor: '_Tuple2', _0: id, _1: _p23._0}
 					]);
 			} else {
 				return _elm_lang$core$Native_List.fromArray(
@@ -11765,13 +11891,13 @@ var _user$project$TimePage$viewTimeslot = F4(
 			}
 		};
 		var foreground = _user$project$TimePage$valueToTextColor(
-			_p23(timeslot));
+			_p28(timeslot));
 		var background = _user$project$TimePage$valueToBackgroundColor(
-			_p23(timeslot));
+			_p28(timeslot));
 		var memberCount = _elm_lang$core$List$length(
-			_p15.members(timeslot));
+			_p20.members(timeslot));
 		var leaderCount = _elm_lang$core$List$length(
-			_p15.leaders(timeslot));
+			_p20.leaders(timeslot));
 		return A2(
 			_elm_lang$html$Html$td,
 			_elm_lang$core$Native_List.fromArray(
@@ -11804,11 +11930,11 @@ var _user$project$TimePage$viewTimeslot = F4(
 					A2(
 					_user$project$DragAndDrop$onDrop,
 					_user$project$Data_Person$idDrag,
-					function (_p19) {
+					function (_p24) {
 						return A2(
 							_user$project$TimePage$Add,
 							timeslot,
-							_elm_lang$core$Maybe$Just(_p19));
+							_elm_lang$core$Maybe$Just(_p24));
 					}),
 					_elm_lang$html$Html_Events$onMouseOver(
 					_user$project$TimePage$Hover(
@@ -11819,10 +11945,10 @@ var _user$project$TimePage$viewTimeslot = F4(
 					_user$project$Util$isJust(group) ? _user$project$TimePage$Delete(timeslot) : A2(_user$project$TimePage$Add, timeslot, _elm_lang$core$Maybe$Nothing))
 				]),
 			function () {
-				var _p20 = group;
-				if (_p20.ctor === 'Just') {
-					var _p21 = _p20._0._1;
-					return _elm_lang$core$Set$isEmpty(_p21.people) ? _elm_lang$core$Native_List.fromArray(
+				var _p25 = group;
+				if (_p25.ctor === 'Just') {
+					var _p26 = _p25._0._1;
+					return _elm_lang$core$Set$isEmpty(_p26.people) ? _elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text(
 							A2(
@@ -11834,14 +11960,14 @@ var _user$project$TimePage$viewTimeslot = F4(
 									_elm_lang$core$Basics$toString(memberCount))))
 						]) : A2(
 						_elm_lang$core$List$map,
-						A2(_user$project$TimePage$viewGroupPerson, hover, _p21),
+						A2(_user$project$TimePage$viewGroupPerson, hover, _p26),
 						A2(
 							_elm_lang$core$List$sortWith,
 							_user$project$TimePage$sortSecond(_user$project$TimePage$leadersFirst),
 							A2(
 								_elm_lang$core$List$concatMap,
 								lookupPerson,
-								_elm_lang$core$Set$toList(_p21.people))));
+								_elm_lang$core$Set$toList(_p26.people))));
 				} else {
 					return _elm_lang$core$Native_List.fromArray(
 						[
@@ -11858,13 +11984,34 @@ var _user$project$TimePage$viewTimeslot = F4(
 			}());
 	});
 var _user$project$TimePage$view = function (model) {
+	var leftOut = function (value) {
+		return A2(
+			_elm_lang$core$Result$withDefault,
+			_user$project$TimePage$Noop,
+			A2(
+				_elm_lang$core$Result$map,
+				_user$project$TimePage$UpdateLeftOut,
+				_elm_lang$core$String$toInt(value)));
+	};
+	var mixedToBool = function (val) {
+		return _elm_lang$core$Native_Utils.eq(val, 'yes');
+	};
+	var numGroups = function (value) {
+		return A2(
+			_elm_lang$core$Result$withDefault,
+			_user$project$TimePage$Noop,
+			A2(
+				_elm_lang$core$Result$map,
+				_user$project$TimePage$UpdateNumGroups,
+				_elm_lang$core$String$toInt(value)));
+	};
 	var index = _user$project$Data_Group$makeIndex(model.groups);
-	var _p24 = model;
-	var people = _p24.people;
-	var groups = _p24.groups;
-	var _p25 = _user$project$TimePage$splitRoles(people);
-	var leaders = _p25.leaders;
-	var members = _p25.members;
+	var _p29 = model;
+	var people = _p29.people;
+	var groups = _p29.groups;
+	var _p30 = _user$project$TimePage$splitRoles(people);
+	var leaders = _p30.leaders;
+	var members = _p30.members;
 	var weights = _user$project$TimePage$peopleWeights(
 		_elm_lang$core$Dict$values(people));
 	var fns = {
@@ -11914,221 +12061,260 @@ var _user$project$TimePage$view = function (model) {
 						_elm_lang$core$Native_List.fromArray(
 							[
 								A2(
-								_elm_lang$html$Html$label,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$for('groups')
-									]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html$text('How many groups do you want?')
-									])),
-								A2(
-								_elm_lang$html$Html$select,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$id('groups'),
-										_elm_lang$html$Html_Attributes$name('How many groups do you want?')
-									]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('1')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('1')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('2')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('2')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('3')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('3')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('4')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('4')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('5')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('5')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('6')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('6')
-											]))
-									])),
-								A2(
-								_elm_lang$html$Html$p,
+								_elm_lang$html$Html$div,
 								_elm_lang$core$Native_List.fromArray(
 									[]),
 								_elm_lang$core$Native_List.fromArray(
-									[])),
-								A2(
-								_elm_lang$html$Html$label,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$for('mixed')
-									]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html$text('Allow leader genders not to match member genders?')
-									])),
-								A2(
-								_elm_lang$html$Html$select,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$name('mixed')
-									]),
-								_elm_lang$core$Native_List.fromArray(
 									[
 										A2(
-										_elm_lang$html$Html$option,
+										_elm_lang$html$Html$label,
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html_Attributes$value('yes')
+												_elm_lang$html$Html_Attributes$for('groups')
 											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html$text('Yes')
+												_elm_lang$html$Html$text('How many groups do you want?')
 											])),
 										A2(
-										_elm_lang$html$Html$option,
+										_elm_lang$html$Html$select,
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html_Attributes$value('no')
+												_elm_lang$html$Html_Attributes$id('groups'),
+												A2(
+												_elm_lang$html$Html_Events$on,
+												'change',
+												A2(_elm_lang$core$Json_Decode$map, numGroups, _elm_lang$html$Html_Events$targetValue))
 											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html$text('No')
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('1')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('1')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('2')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('2')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('3')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('3')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('4')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('4')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('5')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('5')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('6')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('6')
+													]))
 											]))
 									])),
 								A2(
-								_elm_lang$html$Html$p,
+								_elm_lang$html$Html$div,
 								_elm_lang$core$Native_List.fromArray(
 									[]),
 								_elm_lang$core$Native_List.fromArray(
-									[])),
-								A2(
-								_elm_lang$html$Html$label,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$for('leave-out')
-									]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html$text('How many people are you willing to leave out?')
-									])),
-								A2(
-								_elm_lang$html$Html$select,
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html_Attributes$name('leave-out')
-									]),
-								_elm_lang$core$Native_List.fromArray(
 									[
 										A2(
-										_elm_lang$html$Html$option,
+										_elm_lang$html$Html$label,
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html_Attributes$value('1')
+												_elm_lang$html$Html_Attributes$for('mixed')
 											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html$text('1')
+												_elm_lang$html$Html$text('Allow leader genders not to match member genders?')
 											])),
 										A2(
-										_elm_lang$html$Html$option,
+										_elm_lang$html$Html$select,
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html_Attributes$value('2')
+												_elm_lang$html$Html_Attributes$id('mixed'),
+												A2(
+												_elm_lang$html$Html_Events$on,
+												'change',
+												A2(
+													_elm_lang$core$Json_Decode$map,
+													function (_p31) {
+														return _user$project$TimePage$UpdateMixed(
+															mixedToBool(_p31));
+													},
+													_elm_lang$html$Html_Events$targetValue))
 											]),
 										_elm_lang$core$Native_List.fromArray(
 											[
-												_elm_lang$html$Html$text('2')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('3')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('3')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('4')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('4')
-											])),
-										A2(
-										_elm_lang$html$Html$option,
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html_Attributes$value('5')
-											]),
-										_elm_lang$core$Native_List.fromArray(
-											[
-												_elm_lang$html$Html$text('5')
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('yes')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('Yes')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('no')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('No')
+													]))
 											]))
 									])),
 								A2(
-								_elm_lang$html$Html$p,
+								_elm_lang$html$Html$div,
 								_elm_lang$core$Native_List.fromArray(
 									[]),
 								_elm_lang$core$Native_List.fromArray(
-									[])),
+									[
+										A2(
+										_elm_lang$html$Html$label,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$for('leave-out')
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html$text('How many people are you willing to leave out?')
+											])),
+										A2(
+										_elm_lang$html$Html$select,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$id('leave-out'),
+												A2(
+												_elm_lang$html$Html_Events$on,
+												'change',
+												A2(_elm_lang$core$Json_Decode$map, leftOut, _elm_lang$html$Html_Events$targetValue))
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('0')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('0')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('1')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('1')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('2')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('2')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('3')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('3')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('4')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('4')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('5')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('5')
+													]))
+											]))
+									])),
 								A2(
-								_elm_lang$html$Html$button,
+								_elm_lang$html$Html$div,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
 								_elm_lang$core$Native_List.fromArray(
 									[
-										_elm_lang$html$Html_Attributes$class('solve')
-									]),
-								_elm_lang$core$Native_List.fromArray(
-									[
-										_elm_lang$html$Html$text('find groups')
-									]))
+										A2(
+										_elm_lang$html$Html$button,
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html_Attributes$class('solve'),
+												_elm_lang$html$Html_Events$onClick(_user$project$TimePage$RunSolver)
+											]),
+										_elm_lang$core$Native_List.fromArray(
+											[
+												_elm_lang$html$Html$text('suggest times')
+											]))
+									])),
+								_user$project$TimePage$viewSolutions(model.suggestions)
 							])),
 						A4(_user$project$TimePage$viewPeople, model.hover, index, 'Leaders', leaders),
 						A4(_user$project$TimePage$viewPeople, model.hover, index, 'Members', members)
@@ -12148,13 +12334,13 @@ var _user$project$TimePage$update = F2(
 					return A3(_user$project$TimePage$Create, id, timeslot, personId);
 				});
 			var index = _user$project$Data_Group$makeIndex(model.groups);
-			var _p26 = msg;
-			switch (_p26.ctor) {
+			var _p32 = msg;
+			switch (_p32.ctor) {
 				case 'Add':
-					var _p30 = _p26._0;
-					var _p29 = _p26._1;
-					var _p27 = index.byTimeslot(_p30);
-					if (_p27.ctor === 'Nothing') {
+					var _p36 = _p32._0;
+					var _p35 = _p32._1;
+					var _p33 = index.byTimeslot(_p36);
+					if (_p33.ctor === 'Nothing') {
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -12164,13 +12350,13 @@ var _user$project$TimePage$update = F2(
 									[
 										A2(
 										_elm_lang$core$Random$generate,
-										A2(create, _p29, _p30),
+										A2(create, _p35, _p36),
 										_user$project$Util$idGenerator)
 									])),
 							_user$project$TimePage$None);
 					} else {
-						var _p28 = _p29;
-						if (_p28.ctor === 'Nothing') {
+						var _p34 = _p35;
+						if (_p34.ctor === 'Nothing') {
 							return A2(
 								_user$project$Util_ops['!!'],
 								A2(
@@ -12182,7 +12368,7 @@ var _user$project$TimePage$update = F2(
 						} else {
 							var groups$ = A2(
 								_elm_lang$core$Dict$map,
-								A2(_user$project$TimePage$fixGroup, _p30, _p28._0),
+								A2(_user$project$TimePage$fixGroup, _p36, _p34._0),
 								model.groups);
 							return A2(
 								_user$project$Util_ops['!!'],
@@ -12197,30 +12383,30 @@ var _user$project$TimePage$update = F2(
 						}
 					}
 				case 'Create':
-					var _p31 = _p26._1;
-					var group = {time: _p31, people: _elm_lang$core$Set$empty};
-					var groups$ = A3(_elm_lang$core$Dict$insert, _p26._0, group, model.groups);
-					var _v12 = A2(_user$project$TimePage$Add, _p31, _p26._2),
-						_v13 = _elm_lang$core$Native_Utils.update(
+					var _p37 = _p32._1;
+					var group = {time: _p37, people: _elm_lang$core$Set$empty};
+					var groups$ = A3(_elm_lang$core$Dict$insert, _p32._0, group, model.groups);
+					var _v16 = A2(_user$project$TimePage$Add, _p37, _p32._2),
+						_v17 = _elm_lang$core$Native_Utils.update(
 						model,
 						{groups: groups$});
-					msg = _v12;
-					model = _v13;
+					msg = _v16;
+					model = _v17;
 					continue update;
 				case 'Move':
-					var _p35 = _p26._1;
-					var _p34 = _p26._0;
-					var _p32 = {
+					var _p41 = _p32._1;
+					var _p40 = _p32._0;
+					var _p38 = {
 						ctor: '_Tuple2',
-						_0: A2(_elm_lang$core$Dict$get, _p34, model.groups),
-						_1: index.byTimeslot(_p35)
+						_0: A2(_elm_lang$core$Dict$get, _p40, model.groups),
+						_1: index.byTimeslot(_p41)
 					};
-					if (((_p32.ctor === '_Tuple2') && (_p32._0.ctor === 'Just')) && (_p32._1.ctor === 'Nothing')) {
-						var _p33 = _p32._0._0;
-						var groups$ = A3(_elm_lang$core$Dict$insert, _p34, _p33, model.groups);
+					if (((_p38.ctor === '_Tuple2') && (_p38._0.ctor === 'Just')) && (_p38._1.ctor === 'Nothing')) {
+						var _p39 = _p38._0._0;
+						var groups$ = A3(_elm_lang$core$Dict$insert, _p40, _p39, model.groups);
 						var group$ = _elm_lang$core$Native_Utils.update(
-							_p33,
-							{time: _p35});
+							_p39,
+							{time: _p41});
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -12242,15 +12428,15 @@ var _user$project$TimePage$update = F2(
 							_user$project$TimePage$None);
 					}
 				case 'Remove':
-					var _p38 = _p26._0;
-					var _p36 = index.byPerson(_p38);
-					if (_p36.ctor === 'Just') {
-						var _p37 = _p36._0._1;
-						var people$ = A2(_elm_lang$core$Set$remove, _p38, _p37.people);
+					var _p44 = _p32._0;
+					var _p42 = index.byPerson(_p44);
+					if (_p42.ctor === 'Just') {
+						var _p43 = _p42._0._1;
+						var people$ = A2(_elm_lang$core$Set$remove, _p44, _p43.people);
 						var group$ = _elm_lang$core$Native_Utils.update(
-							_p37,
+							_p43,
 							{people: people$});
-						var groups$ = A3(_elm_lang$core$Dict$insert, _p36._0._0, group$, model.groups);
+						var groups$ = A3(_elm_lang$core$Dict$insert, _p42._0._0, group$, model.groups);
 						return A2(
 							_user$project$Util_ops['!!'],
 							A2(
@@ -12272,10 +12458,10 @@ var _user$project$TimePage$update = F2(
 							_user$project$TimePage$None);
 					}
 				case 'Delete':
-					var _p39 = index.byTimeslot(_p26._0);
-					if (_p39.ctor === 'Just') {
-						if (_elm_lang$core$Set$isEmpty(_p39._0._1.people)) {
-							var groups$ = A2(_elm_lang$core$Dict$remove, _p39._0._0, model.groups);
+					var _p45 = index.byTimeslot(_p32._0);
+					if (_p45.ctor === 'Just') {
+						if (_elm_lang$core$Set$isEmpty(_p45._0._1.people)) {
+							var groups$ = A2(_elm_lang$core$Dict$remove, _p45._0._0, model.groups);
 							return A2(
 								_user$project$Util_ops['!!'],
 								A2(
@@ -12306,14 +12492,78 @@ var _user$project$TimePage$update = F2(
 									[])),
 							_user$project$TimePage$None);
 					}
-				default:
+				case 'Hover':
 					return A2(
 						_user$project$Util_ops['!!'],
 						A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							_elm_lang$core$Native_Utils.update(
 								model,
-								{hover: _p26._0}),
+								{hover: _p32._0}),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+						_user$project$TimePage$None);
+				case 'RunSolver':
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							model,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A4(_user$project$Ports$runSolver, model.people, model.numGroups, model.mixed, model.leftOut)
+								])),
+						_user$project$TimePage$None);
+				case 'HandleSuggestions':
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{suggestions: _p32._0}),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+						_user$project$TimePage$None);
+				case 'UpdateNumGroups':
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{numGroups: _p32._0}),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+						_user$project$TimePage$None);
+				case 'UpdateMixed':
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{mixed: _p32._0}),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+						_user$project$TimePage$None);
+				case 'UpdateLeftOut':
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{leftOut: _p32._0}),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+						_user$project$TimePage$None);
+				default:
+					return A2(
+						_user$project$Util_ops['!!'],
+						A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							model,
 							_elm_lang$core$Native_List.fromArray(
 								[])),
 						_user$project$TimePage$None);

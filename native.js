@@ -36,6 +36,7 @@ var handlePorts = function(app) {
   });
 
   app.ports.saveDataPort.subscribe(function(data) {
+    console.log(data);
     localStorage.setItem('name', JSON.stringify(data.name));
     localStorage.setItem('people', JSON.stringify(data.people));
     localStorage.setItem('groups', JSON.stringify(data.groups));
@@ -70,5 +71,12 @@ var handlePorts = function(app) {
     }, false);
     input.click();
     document.body.removeChild(input);
+  });
+
+  app.ports.runSolverPort.subscribe(function(data) {
+    console.log(data);
+    var solution = runSolvers(data.people, data.numGroups, data.mixed, data.leftOut);
+    console.log(solution);
+    app.ports.solverSolutionPort.send(solution);
   });
 };
