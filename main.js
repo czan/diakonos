@@ -12188,21 +12188,21 @@ var _user$project$TimePage$view = function (model) {
 												_elm_lang$html$Html$option,
 												_elm_lang$core$Native_List.fromArray(
 													[
-														_elm_lang$html$Html_Attributes$value('yes')
-													]),
-												_elm_lang$core$Native_List.fromArray(
-													[
-														_elm_lang$html$Html$text('Yes')
-													])),
-												A2(
-												_elm_lang$html$Html$option,
-												_elm_lang$core$Native_List.fromArray(
-													[
 														_elm_lang$html$Html_Attributes$value('no')
 													]),
 												_elm_lang$core$Native_List.fromArray(
 													[
 														_elm_lang$html$Html$text('No')
+													])),
+												A2(
+												_elm_lang$html$Html$option,
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html_Attributes$value('yes')
+													]),
+												_elm_lang$core$Native_List.fromArray(
+													[
+														_elm_lang$html$Html$text('Yes')
 													]))
 											]))
 									])),
